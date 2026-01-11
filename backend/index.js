@@ -12,11 +12,9 @@ import addressRoutes from "./routes/address.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import { stripeWebhook } from "./controller/order.webhook.js";
 
-import { connectCloudinary } from "./config/cloudinary.js";
 
 const app = express();
 
-await connectCloudinary();
 // allow multiple origins
 const allowedOrigins = ["http://localhost:5173"];
 //middlewares
@@ -32,7 +30,6 @@ app.post(
 app.use(express.json());
 
 // Api endpoints
-app.use("/images", express.static("uploads"));
 app.use("/api/user", userRoutes);
 app.use("/api/seller", sellerRoutes);
 app.use("/api/product", productRoutes);
