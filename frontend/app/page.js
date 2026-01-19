@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 
 function Page() {
-  const user = false; 
+  const user = true; 
 
   if (!user) {
     redirect("/login"); 
+  }else{
+    redirect("/home")
   }
 
   return (
