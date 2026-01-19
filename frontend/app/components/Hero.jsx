@@ -47,7 +47,7 @@ const Hero = () => {
         <div className="hidden md:flex justify-center">
           <div
             className="relative w-72 lg:w-80 h-72 lg:h-80 rounded-3xl
-            bg-gradient-to-br from-primary/20 to-accent/20
+            bg-linear-to-br from-primary/20 to-accent/20
             border border-border flex items-center justify-center"
           >
             <span className="text-text-secondary text-sm">
