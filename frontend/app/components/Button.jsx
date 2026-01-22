@@ -22,6 +22,7 @@ function Button({
         hover:scale-[1.02]
         active:scale-[0.98]
         text-sm
+        cursor-pointer
         ${disabled ? "opacity-60 cursor-not-allowed" : ""}
         ${className}
       `}
