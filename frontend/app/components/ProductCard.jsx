@@ -23,7 +23,7 @@ export const ProductCard = ({ product }) => {
         >
             <div className="relative h-48 overflow-hidden bg-primary-bg">
                 <img
-                    src={product.image[0]}
+                    src={product.images[0]}
                     alt={product.name}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
