@@ -136,3 +136,39 @@ export const featuredProducts = [
         reviews: 1234
     }
 ];
+
+
+export const reviews = [
+    {
+      name: "Priya Sharma",
+      rating: 5,
+      review: "Fresh vegetables every time! The quality is consistently excellent and everything arrives in perfect condition.",
+      date: "2 days ago",
+      avatar: "PS",
+      image: "https://i.pravatar.cc/150?img=5"
+    },
+    {
+      name: "Rajesh Kumar",
+      rating: 5,
+      review: "Delivery on time, every single order. Never had any issues with late deliveries. Highly recommended!",
+      date: "1 week ago",
+      avatar: "RK",
+      image: "https://i.pravatar.cc/150?img=12"
+    },
+    {
+      name: "Anita Patel",
+      rating: 5,
+      review: "Best prices in town with no hidden charges. Great variety of products and excellent customer service.",
+      date: "2 weeks ago",
+      avatar: "AP",
+      image: "https://i.pravatar.cc/150?img=9"
+    },
+    {
+      name: "Vikram Singh",
+      rating: 5,
+      review: "Easy return process made my experience stress-free. The app is user-friendly and shopping is a breeze!",
+      date: "3 weeks ago",
+      avatar: "VS",
+      image: "https://i.pravatar.cc/150?img=15"
+    }
+  ];

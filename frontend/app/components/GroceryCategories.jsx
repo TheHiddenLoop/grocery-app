@@ -21,7 +21,7 @@ export default function GroceryCategories() {
             <ShoppingCart className="w-8 h-8 text-primary" />
           </div>
 
-          <h2 className="text-4xl sm:text-5xl font-bold text-text-primary">
+          <h2 className="text-3xl font-bold text-text-primary">
             Shop by Category
           </h2>
 
