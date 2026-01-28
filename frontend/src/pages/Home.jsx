@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 import GroceryCategories from "../components/GroceryCategories";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
-import FeaturedSection from "../components/ProductSample";
+import TopDeals from "../components/ProductSample";
 import WhyChooseUs from "../components/WhyChooseUs";
 
 const Page = () => {
@@ -13,7 +13,7 @@ const Page = () => {
       <Header />
       <Hero />
       <GroceryCategories />
-      <FeaturedSection />
+      <TopDeals />
       <WhyChooseUs />
       <CustomerReviews />
       <Footer />

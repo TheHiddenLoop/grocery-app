@@ -82,7 +82,7 @@ export default function Header() {
               <div className="px-4 pt-2">
                 <button className="w-full flex items-center justify-center gap-2 py-3 bg-primary-bg border border-border rounded-lg">
                   <div className="w-6 h-6 rounded-full bg-primary overflow-hidden flex items-center justify-center">
-                    <Image 
+                    <img 
                       src="/images/profile.jpg" 
                       alt="Profile" 
                       width={24} 

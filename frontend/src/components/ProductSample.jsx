@@ -3,7 +3,7 @@ import { ProductCard } from './ProductCard';
 
 
 
-export default function FeaturedSection() {
+export default function TopDeals() {
   
 
   return (

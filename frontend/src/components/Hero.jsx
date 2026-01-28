@@ -44,15 +44,48 @@ const Hero = () => {
           </div>
         </div>
 
-        <div className="hidden md:flex justify-center">
-          <div
-            className="relative w-72 lg:w-80 h-72 lg:h-80 rounded-3xl
-            bg-linear-to-br from-primary/20 to-accent/20
-            border border-border flex items-center justify-center"
-          >
-            <span className="text-text-secondary text-sm">
-              Product Preview / Banner
-            </span>
+        <div className="hidden md:flex justify-end items-center">
+          <div className="relative w-full max-w-md h-[450px]">
+            
+            <div className="absolute bottom-0 right-0 w-64 h-80 rounded-3xl overflow-hidden border-2 border-border shadow-lg">
+              <img 
+                src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&h=600&fit=crop" 
+                alt="Fresh Vegetables"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/80 to-transparent"></div>
+              <div className="absolute bottom-4 left-4 right-4">
+                <h3 className="text-white font-bold text-lg">Fresh Veggies</h3>
+                <p className="text-text-secondary text-sm">Daily Farm Fresh</p>
+              </div>
+            </div>
+
+            <div className="absolute top-16 right-16 w-64 h-80 rounded-3xl overflow-hidden border-2 border-border shadow-xl">
+              <img 
+                src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=500&h=600&fit=crop" 
+                alt="Fresh Fruits"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/80 to-transparent"></div>
+              <div className="absolute bottom-4 left-4 right-4">
+                <h3 className="text-white font-bold text-lg">Exotic Fruits</h3>
+                <p className="text-text-secondary text-sm">Imported Quality</p>
+              </div>
+            </div>
+
+            <div className="absolute top-0 left-0 w-64 h-80 rounded-3xl overflow-hidden border-2 border-primary shadow-2xl">
+              <img 
+                src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=500&h=600&fit=crop" 
+                alt="Dairy Products"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/90 to-transparent"></div>
+              <div className="absolute bottom-4 left-4 right-4">
+                <h3 className="text-white font-bold text-lg">Dairy Fresh</h3>
+                <p className="text-text-secondary text-sm">100% Pure</p>
+              </div>
+            </div>
+
           </div>
         </div>
 
