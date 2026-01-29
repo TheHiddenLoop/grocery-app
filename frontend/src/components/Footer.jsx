@@ -13,7 +13,7 @@ export default function Footer() {
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       />
 
-      <footer className="bg-bg-secondary border-t border-border">
+      <footer id="contact" className="bg-bg-secondary border-t border-border">
         <div className="max-w-6xl mx-auto px-4 py-4">
 
           <div className="flex flex-col sm:flex-row items-center justify-between ">

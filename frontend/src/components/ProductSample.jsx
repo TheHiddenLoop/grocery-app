@@ -7,7 +7,7 @@ export default function TopDeals() {
   
 
   return (
-    <div className="min-h-screen bg-bg-primary py-16">
+    <section id="deals" className="min-h-screen bg-bg-primary py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <div className="mb-12 text-center">
           <h1 className="text-3xl font-bold text-text-primary mb-4">Featured Deals</h1>
@@ -20,6 +20,6 @@ export default function TopDeals() {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

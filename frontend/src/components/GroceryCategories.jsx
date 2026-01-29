@@ -12,7 +12,7 @@ export default function GroceryCategories() {
   };
 
   return (
-    <section className="bg-bg-primary py-16">
+    <section id="products" className="bg-bg-primary py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <div className="text-center mb-12">
           <div className="inline-flex p-3 mb-4 bg-primary-bg rounded-full border-2 border-border">
