@@ -3,7 +3,7 @@ import { axiosInstance } from "../../libs/axios";
 
 export const check= async () => {
   try {
-    const res = await axiosInstance.get("/auth/me");
+    const res = await axiosInstance.get("/user/is-auth");
     return res.data; 
   } catch (err) {
     console.log(err);
@@ -12,7 +12,7 @@ export const check= async () => {
 
 export const signupApi = async (formData) => {
     try {
-        const res = await axiosInstance.post("/auth/signup", formData);
+        const res = await axiosInstance.post("/user/register", formData);
         return res.data;
     } catch (err) {
         const message =
@@ -23,7 +23,7 @@ export const signupApi = async (formData) => {
 
 export const loginApi = async (formData) => {
     try {
-        const res = await axiosInstance.post("/auth/login", formData);
+        const res = await axiosInstance.post("/user/login", formData);
         return res.data;
     } catch (err) {
         const message =

@@ -4,6 +4,9 @@ import { Lock, Mail, User, UserPlus } from "lucide-react"
 import InputField from "../components/Input"
 import { useState } from "react"
 import Button from "../components/Button"
+import { useDispatch, useSelector } from "react-redux";
+import { signup } from "../features/auth/authSlice"
+import { selectAuthStatus } from "../features/auth/authSelector"
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -11,6 +14,10 @@ function Signup() {
     email: "",
     password: ""
   });
+
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthStatus);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,7 +30,15 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password || !formData.name) return;
-    console.log(formData);
+    try {
+      await dispatch(signup(formData)).unwrap();
+      setFormData({ name: "", email: "", password: "" });
+      setTimeout(()=>{
+          navigate("/");
+        }, 1000);
+    } catch (err) {
+      console.error("Signup failed:", err);
+    }
   };
 
   return (

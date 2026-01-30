@@ -1,15 +1,21 @@
-import RightAuthPanel from "../components/RightAuthPanel"
-import { Lock, Mail } from "lucide-react"
-import InputField from "../components/Input"
-import { useState } from "react"
-import Button from "../components/Button"
-import { Link } from "react-router";
+import RightAuthPanel from "../components/RightAuthPanel";
+import { Lock, Mail } from "lucide-react";
+import InputField from "../components/Input";
+import { useState } from "react";
+import Button from "../components/Button";
+import { login } from "../features/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectAuthStatus } from "../features/auth/authSelector";
+import { Link, useNavigate } from "react-router";
 
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthStatus);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,16 +28,22 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) return;
-    console.log(formData);
+    try {
+      await dispatch(login(formData)).unwrap();
+      setFormData({ email: "", password: "" });
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+    } catch (err) {
+      console.error("Signup failed:", err);
+    }
   };
 
   return (
     <div className="min-h-screen bg-bg-primary">
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-
         <div className="flex items-center justify-center px-6">
           <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
-
             <div className="flex flex-col items-center gap-2 mb-2">
               <div className="w-14 h-14 rounded-xl bg-bg-secondary flex items-center justify-center">
                 <Mail className="w-6 h-6 text-primary" />
@@ -78,7 +90,10 @@ function Login() {
 
             <p className="text-sm text-text-secondary flex justify-end gap-1">
               Don’t have an account?
-              <Link to="/signin" className="text-primary hover:underline cursor-pointer">
+              <Link
+                to="/signin"
+                className="text-primary hover:underline cursor-pointer"
+              >
                 Sign In
               </Link>
             </p>
@@ -97,7 +112,6 @@ function Login() {
             description="Access your dashboard, manage your profile, and continue where you left off."
           />
         </div>
-
       </div>
     </div>
   );
