@@ -16,6 +16,8 @@ export function uploadToCloudinary(fileBuffer) {
 // add product :/api/product/add
 export const addProduct = async (req, res) => {
   try {
+    console.log(req.body);
+    
     const { name, price, offerPrice, description, category } = req.body;
 
     if (
