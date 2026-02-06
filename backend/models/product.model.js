@@ -24,6 +24,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  unit: {
+    type: String,
+    required: true,
+  },
   inStock: {
     type: Boolean,
     required: true,

@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { Search, Filter, Pencil, Trash2, Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Search, Filter, Pencil, Trash2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "../store/useStore";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { StatusBadge } from "../components/ui/StatusBadge";
@@ -23,6 +22,8 @@ import {
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "../hooks/use-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteProduct, getProduct, updateProduct } from "../features/Product/productSlice";
 
 const categories = [
   "All",
@@ -39,15 +40,24 @@ const categories = [
 ];
 
 export default function Products() {
-  const { products, updateProduct, deleteProduct } = useStore();
   const navigate = useNavigate();
-  
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.product.product);
+  const loading = useSelector((state) => state.product.loading);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const filteredProducts = products.filter((product) => {
+  useEffect(() => {
+    dispatch(getProduct());
+  }, [dispatch]);
+  
+  console.log(products);
+  
+
+  const filteredProducts = (products || []).filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === "All" || product.category === categoryFilter;
     return matchesSearch && matchesCategory;
@@ -59,26 +69,40 @@ export default function Products() {
     return { label: "In Stock", variant: "success" };
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteConfirm) {
-      deleteProduct(deleteConfirm.id);
-      toast({
-        title: "Product Deleted",
-        description: `${deleteConfirm.name} has been removed from inventory.`,
-      });
-      setDeleteConfirm(null);
+      try {
+        await dispatch(deleteProduct({ id: deleteConfirm._id, toast })).unwrap();
+        setDeleteConfirm(null);
+      } catch (error) {
+        // Error already handled in thunk
+      }
     }
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
     if (editingProduct) {
-      updateProduct(editingProduct.id, editingProduct);
-      toast({
-        title: "Product Updated",
-        description: `${editingProduct.name} has been updated successfully.`,
-      });
-      setEditingProduct(null);
+      try {
+        const updateData = {
+          name: editingProduct.name,
+          price: editingProduct.price,
+          offerPrice: editingProduct.offerPrice,
+          stock: editingProduct.stock,
+          description: editingProduct.description,
+        };
+
+        await dispatch(
+          updateProduct({
+            id: editingProduct._id,
+            updateData,
+            toast,
+          })
+        ).unwrap();
+        setEditingProduct(null);
+      } catch (error) {
+        // Error already handled in thunk
+      }
     }
   };
 
@@ -88,9 +112,14 @@ export default function Products() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">All Products</h1>
-          <p className="text-muted-foreground mt-1">{products.length} products in inventory</p>
+          <p className="text-muted-foreground mt-1">
+            {products?.length || 0} products in inventory
+          </p>
         </div>
-        <Button onClick={() => navigate("/add-product")} className="gradient-primary text-primary-foreground">
+        <Button
+          onClick={() => navigate("/add-product")}
+          className="gradient-primary text-primary-foreground"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Product
         </Button>
@@ -124,8 +153,12 @@ export default function Products() {
         </div>
       </div>
 
-      {/* Products Grid */}
-      {filteredProducts.length === 0 ? (
+      {/* Loading State */}
+      {loading ? (
+        <div className="glass rounded-xl p-12 text-center">
+          <p className="text-muted-foreground">Loading products...</p>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="glass rounded-xl p-12 text-center">
           <p className="text-muted-foreground">No products found</p>
         </div>
@@ -133,11 +166,17 @@ export default function Products() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.map((product) => {
             const stockStatus = getStockStatus(product.stock);
+            const displayPrice = product.offerPrice || product.price;
+            const hasOffer = product.offerPrice && product.offerPrice < product.price;
+
             return (
-              <div key={product.id} className="glass rounded-xl overflow-hidden hover:border-primary/30 transition-colors group">
+              <div
+                key={product._id}
+                className="glass rounded-xl overflow-hidden hover:border-primary/30 transition-colors group"
+              >
                 <div className="aspect-video relative overflow-hidden">
                   <img
-                    src={product.image}
+                    src={product.image?.[0] || "/placeholder.svg"}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
@@ -145,27 +184,51 @@ export default function Products() {
                     }}
                   />
                   <div className="absolute top-2 right-2">
-                    <StatusBadge variant={stockStatus.variant}>{stockStatus.label}</StatusBadge>
+                    <StatusBadge variant={stockStatus.variant}>
+                      {stockStatus.label}
+                    </StatusBadge>
                   </div>
                 </div>
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-foreground truncate">{product.name}</h3>
+                      <h3 className="font-semibold text-foreground truncate">
+                        {product.name}
+                      </h3>
                       <p className="text-sm text-muted-foreground">{product.category}</p>
                     </div>
-                    <p className="text-lg font-bold text-primary shrink-0">${product.price.toFixed(2)}</p>
+                    <div className="text-right shrink-0">
+                      {hasOffer ? (
+                        <>
+                          <p className="text-lg font-bold text-primary">
+                            ${displayPrice.toFixed(2)}
+                          </p>
+                          <p className="text-xs text-muted-foreground line-through">
+                            ${product.price.toFixed(2)}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-lg font-bold text-primary">
+                          ${displayPrice.toFixed(2)}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{product.description}</p>
+                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                    {product.description}
+                  </p>
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
                     <p className="text-sm text-muted-foreground">
-                      Stock: <span className="text-foreground font-medium">{product.stock} {product.unit}</span>
+                      Stock:{" "}
+                      <span className="text-foreground font-medium">
+                        {product.stock} {product.unit}
+                      </span>
                     </p>
                     <div className="flex gap-1">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-primary"
+                        className="h-8 w-8 text-muted-foreground hover:text-popover-foreground"
                         onClick={() => setEditingProduct(product)}
                       >
                         <Pencil className="w-4 h-4" />
@@ -188,7 +251,10 @@ export default function Products() {
       )}
 
       {/* Edit Dialog */}
-      <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
+      <Dialog
+        open={!!editingProduct}
+        onOpenChange={(open) => !open && setEditingProduct(null)}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Product</DialogTitle>
@@ -201,7 +267,9 @@ export default function Products() {
                 <Input
                   id="edit-name"
                   value={editingProduct.name}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                  onChange={(e) =>
+                    setEditingProduct({ ...editingProduct, name: e.target.value })
+                  }
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -212,29 +280,60 @@ export default function Products() {
                     type="number"
                     step="0.01"
                     value={editingProduct.price}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        price: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-stock">Stock</Label>
+                  <Label htmlFor="edit-offer-price">Offer Price ($)</Label>
                   <Input
-                    id="edit-stock"
+                    id="edit-offer-price"
                     type="number"
-                    value={editingProduct.stock}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, stock: parseInt(e.target.value) || 0 })}
+                    step="0.01"
+                    value={editingProduct.offerPrice || ""}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        offerPrice: e.target.value ? parseFloat(e.target.value) : "",
+                      })
+                    }
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-stock">Stock</Label>
+                <Input
+                  id="edit-stock"
+                  type="number"
+                  value={editingProduct.stock}
+                  onChange={(e) =>
+                    setEditingProduct({
+                      ...editingProduct,
+                      stock: parseInt(e.target.value) || 0,
+                    })
+                  }
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-description">Description</Label>
                 <Textarea
                   id="edit-description"
                   value={editingProduct.description}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditingProduct({ ...editingProduct, description: e.target.value })
+                  }
                 />
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditingProduct(null)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditingProduct(null)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" className="gradient-primary text-primary-foreground">
@@ -247,12 +346,16 @@ export default function Products() {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+      <Dialog
+        open={!!deleteConfirm}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Delete Product</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{deleteConfirm?.name}"? This action cannot be undone.
+              Are you sure you want to delete "{deleteConfirm?.name}"? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

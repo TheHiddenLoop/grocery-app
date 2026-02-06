@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addProductApi } from "./productApi";
+import { addProductApi, getProductApi } from "./productApi";
 import { toast } from "../../hooks/use-toast";
 
 const initialState = {
   loading: false,
-  product: null,
+  product: [], 
   error: null,
 };
 
@@ -19,9 +19,39 @@ export const addProduct = createAsyncThunk(
         description: data.message,
       });
 
-      return data;
+      return data.product || data; 
     } catch (err) {
       const message = err?.message || "Failed to add product";
+
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const updateProduct  = ()=>{
+  console.log("hello");
+  
+}
+
+export const deleteProduct  = ()=>{
+  console.log("hello");
+  
+}
+
+export const getProduct = createAsyncThunk(
+  "product/get", 
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await getProductApi();      
+      return data.products; 
+    } catch (err) {
+      const message = err?.message || "Failed to get products";
 
       toast({
         title: "Error",
@@ -40,7 +70,7 @@ const productSlice = createSlice({
   reducers: {
     resetProduct(state) {
       state.loading = false;
-      state.product = null;
+      state.product = [];
       state.error = null;
     },
   },
@@ -52,11 +82,24 @@ const productSlice = createSlice({
       })
       .addCase(addProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.product = action.payload;
+        state.product.push(action.payload); 
       })
       .addCase(addProduct.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Something went wrong";
+        state.error = action.payload;
+      })
+
+      .addCase(getProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.product = action.payload; 
+      })
+      .addCase(getProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

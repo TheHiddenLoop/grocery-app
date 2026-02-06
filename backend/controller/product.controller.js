@@ -18,14 +18,14 @@ export const addProduct = async (req, res) => {
   try {
     console.log(req.body);
     
-    const { name, price, offerPrice, description, category } = req.body;
+    const { name, price, offerPrice, description, category, unit } = req.body;
 
     if (
       !name ||
       price == null ||
       offerPrice == null ||
       !description ||
-      !category
+      !category || !unit
     ) {
       return res.status(400).json({
         success: false,
@@ -51,6 +51,7 @@ export const addProduct = async (req, res) => {
       offerPrice,
       description,
       category,
+      unit,
       image: images,
     });
 
@@ -75,7 +76,7 @@ export const addProduct = async (req, res) => {
 export const getProducts = async (req, res) => {
   try {
     const products = await Product.find({});
-    res.status(200).json({ success: true, products });
+    res.status(200).json({ success: true, products:products });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }

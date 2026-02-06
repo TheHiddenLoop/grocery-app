@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 // Sample data
-const sampleProducts = [
+export const sampleProducts = [
   {
     id: "1",
     name: "Organic Bananas",

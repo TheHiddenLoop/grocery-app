@@ -14,25 +14,26 @@ import { cn } from "../../lib/utils";
 const navItems = [
   {
     title: "Dashboard",
-    href: "/",
-    icon: LayoutDashboard
+    href: "/admin",
+    icon: LayoutDashboard,
   },
   {
     title: "Add Product",
-    href: "/add-product",
-    icon: PackagePlus
+    href: "/admin/add-product",
+    icon: PackagePlus,
   },
   {
     title: "All Products",
-    href: "/products",
-    icon: Package
+    href: "/admin/products",
+    icon: Package,
   },
   {
     title: "Orders",
-    href: "/orders",
-    icon: ShoppingCart
-  }
+    href: "/admin/orders",
+    icon: ShoppingCart,
+  },
 ];
+
 
 export function Sidebar({ children }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -157,7 +158,7 @@ export function Sidebar({ children }) {
           <div className="flex-1" />
 
           <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
+            <div className="text-right ">
               <p className="text-sm font-medium text-foreground">
                 Welcome back
               </p>

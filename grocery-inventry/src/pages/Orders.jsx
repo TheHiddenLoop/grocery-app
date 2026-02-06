@@ -165,7 +165,7 @@ export default function Orders() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          className="h-8 w-8 text-muted-foreground hover:text-popover-foreground"
                           onClick={() => setViewingOrder(order)}
                         >
                           <Eye className="w-4 h-4" />
@@ -173,7 +173,7 @@ export default function Orders() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          className="h-8 w-8 text-muted-foreground hover:text-popover-foreground"
                           onClick={() => {
                             setUpdateStatusOrder(order);
                             setNewStatus(order.status);
