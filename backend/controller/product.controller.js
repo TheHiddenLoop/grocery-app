@@ -18,14 +18,14 @@ export const addProduct = async (req, res) => {
   try {
     console.log(req.body);
     
-    const { name, price, offerPrice, description, category, unit } = req.body;
+    const { name, price, offerPrice, description, category, unit, stock } = req.body;
 
     if (
       !name ||
       price == null ||
       offerPrice == null ||
       !description ||
-      !category || !unit
+      !category || !unit || !stock
     ) {
       return res.status(400).json({
         success: false,
@@ -52,6 +52,7 @@ export const addProduct = async (req, res) => {
       description,
       category,
       unit,
+      stock,
       image: images,
     });
 
@@ -92,6 +93,75 @@ export const getProductById = async (req, res) => {
   }
 };
 // change stock  :/api/product/stock
+
+export const editProduct = async (req, res) => {
+  try {    
+    const { _id, name, price, offerPrice, description, stock } = req.body;
+
+    if (
+      !_id ||
+      !name ||
+      price == null ||
+      offerPrice == null ||
+      !description ||
+      stock == null
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    const product = await Product.findByIdAndUpdate(
+      _id,
+      { name, price, offerPrice, description, stock },
+      { new: true, runValidators: true }
+    );
+
+    if (!product) return res.sendStatus(404);
+
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Error in editProduct:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while editing product details",
+    });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;    
+
+    const product = await Product.findByIdAndDelete(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Product deleted successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Error in deleteProduct:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while deleting product details",
+    });
+  }
+};
+
+
 export const changeStock = async (req, res) => {
   try {
     const { id, inStock } = req.body;

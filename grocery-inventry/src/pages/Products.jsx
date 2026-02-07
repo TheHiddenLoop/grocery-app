@@ -52,10 +52,7 @@ export default function Products() {
 
   useEffect(() => {
     dispatch(getProduct());
-  }, [dispatch]);
-  
-  console.log(products);
-  
+  }, [dispatch]);  
 
   const filteredProducts = (products || []).filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -72,7 +69,7 @@ export default function Products() {
   const handleDelete = async () => {
     if (deleteConfirm) {
       try {
-        await dispatch(deleteProduct({ id: deleteConfirm._id, toast })).unwrap();
+        await dispatch(deleteProduct(deleteConfirm._id)).unwrap();
         setDeleteConfirm(null);
       } catch (error) {
         // Error already handled in thunk
@@ -82,29 +79,27 @@ export default function Products() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    
     if (editingProduct) {
       try {
         const updateData = {
+          _id: editingProduct._id,
           name: editingProduct.name,
           price: editingProduct.price,
           offerPrice: editingProduct.offerPrice,
           stock: editingProduct.stock,
           description: editingProduct.description,
         };
-
+        
         await dispatch(
-          updateProduct({
-            id: editingProduct._id,
-            updateData,
-            toast,
-          })
+          updateProduct(updateData)
         ).unwrap();
         setEditingProduct(null);
       } catch (error) {
         // Error already handled in thunk
       }
     }
-  };
+  };  
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -117,7 +112,7 @@ export default function Products() {
           </p>
         </div>
         <Button
-          onClick={() => navigate("/add-product")}
+          onClick={() => navigate("/admin/add-product")}
           className="gradient-primary text-primary-foreground"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -278,7 +273,6 @@ export default function Products() {
                   <Input
                     id="edit-price"
                     type="number"
-                    step="0.01"
                     value={editingProduct.price}
                     onChange={(e) =>
                       setEditingProduct({
@@ -293,7 +287,6 @@ export default function Products() {
                   <Input
                     id="edit-offer-price"
                     type="number"
-                    step="0.01"
                     value={editingProduct.offerPrice || ""}
                     onChange={(e) =>
                       setEditingProduct({

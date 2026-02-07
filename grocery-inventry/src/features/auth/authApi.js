@@ -27,3 +27,15 @@ export const meApi = async () => {
     throw new Error(message);
   }
 };
+
+
+export const logoutApi = async () => {
+  try {
+    const res = await axiosInstance.get("/seller/logout");
+    return res.data;
+  } catch (err) {
+    const message =
+      err.response?.data?.message || err.message || "Logout failed";
+    throw new Error(message);
+  }
+};

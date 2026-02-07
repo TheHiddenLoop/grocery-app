@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import { adminToken } from "../config/generateToken.js";
 
 // seller login : /api/seller/login
 
@@ -22,18 +23,7 @@ export const sellerLogin = async (req, res) => {
         .json({ message: "Invalid credentials", success: false });
     }
 
-    const token = jwt.sign(
-      { id: seller._id, role: seller.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.cookie("sellerToken", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    adminToken(seller ,res)
 
     res.status(200).json({
       success: true,
@@ -67,18 +57,17 @@ export const checkAuth = async (req, res) => {
 // logout seller: /api/seller/logout
 export const sellerLogout = async (req, res) => {
   try {
-    res.clearCookie("sellerToken", {
+    res.cookie("admin", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      secure: true,
+      sameSite: "none",
+      expires: new Date(0),
+      path: "/",
     });
 
-    res.status(200).json({
-      success: true,
-      message: "Logged out successfully",
-    });
+    res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    console.error("Error in logout:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Logout error:", error.message);
+    res.status(500).json({ message: "Server error during logout" });
   }
 };

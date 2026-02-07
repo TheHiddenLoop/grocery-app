@@ -7,9 +7,12 @@ import {
   ShoppingCart,
   Menu,
   X,
-  ChevronLeft
+  ChevronLeft,
+  LogOut
 } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../features/auth/authSlice";
 
 const navItems = [
   {
@@ -39,6 +42,7 @@ export function Sidebar({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const dispatch = useDispatch();
 
   return (
     <div className="flex min-h-screen w-full">
@@ -133,6 +137,7 @@ export function Sidebar({ children }) {
               <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
                 <span className="text-primary font-semibold">A</span>
               </div>
+
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">
                   Admin User
@@ -141,8 +146,17 @@ export function Sidebar({ children }) {
                   admin@grocery.com
                 </p>
               </div>
+
+              <button
+                onClick={() => dispatch(logoutUser())}
+                className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
+                title="Logout"
+              >
+                <LogOut size={18} />
+              </button>
             </div>
           </div>
+
         )}
       </aside>
 

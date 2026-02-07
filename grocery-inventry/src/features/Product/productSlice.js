@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addProductApi, getProductApi } from "./productApi";
+import { addProductApi, deleteProductApi, editProductApi, getProductApi } from "./productApi";
 import { toast } from "../../hooks/use-toast";
 
 const initialState = {
   loading: false,
-  product: [], 
+  product: [],
   error: null,
 };
 
@@ -19,7 +19,7 @@ export const addProduct = createAsyncThunk(
         description: data.message,
       });
 
-      return data.product || data; 
+      return data.product || data;
     } catch (err) {
       const message = err?.message || "Failed to add product";
 
@@ -34,22 +34,66 @@ export const addProduct = createAsyncThunk(
   }
 );
 
-export const updateProduct  = ()=>{
-  console.log("hello");
-  
-}
+export const updateProduct = createAsyncThunk(
+  "product/update",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const data = await editProductApi(formData);
 
-export const deleteProduct  = ()=>{
-  console.log("hello");
-  
-}
+      toast({
+        title: "Product Edited!",
+        description: data.message,
+      });
+
+      return data.product || data;
+    } catch (err) {
+      const message = err?.message || "Failed to add product";
+
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+
+      return rejectWithValue(message);
+    }
+  }
+);
+
+
+export const deleteProduct = createAsyncThunk(
+  "product/delete",
+  async (id, { rejectWithValue }) => {
+    try {
+      const data = await deleteProductApi(id);
+
+      toast({
+        title: "Product Deleted!",
+        description: data.message,
+      });
+
+      return data.product._id;
+    } catch (err) {
+      const message = err?.message || "Failed to delete product";
+
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+
+      return rejectWithValue(message);
+    }
+  }
+);
+
 
 export const getProduct = createAsyncThunk(
-  "product/get", 
+  "product/get",
   async (_, { rejectWithValue }) => {
     try {
-      const data = await getProductApi();      
-      return data.products; 
+      const data = await getProductApi();
+      return data.products;
     } catch (err) {
       const message = err?.message || "Failed to get products";
 
@@ -82,12 +126,55 @@ const productSlice = createSlice({
       })
       .addCase(addProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.product.push(action.payload); 
+        state.product.push(action.payload);
       })
       .addCase(addProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+
+      //edit product
+
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const updatedProduct = action.payload;
+
+        const index = state.product.findIndex(
+          (item) => item._id === updatedProduct._id
+        );
+
+        if (index !== -1) {
+          state.product[index] = updatedProduct;
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      //delete product
+
+      .addCase(deleteProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.product = state.product.filter(
+          (item) => item._id !== action.payload
+        );
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      //all product
 
       .addCase(getProduct.pending, (state) => {
         state.loading = true;
@@ -95,7 +182,7 @@ const productSlice = createSlice({
       })
       .addCase(getProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.product = action.payload; 
+        state.product = action.payload;
       })
       .addCase(getProduct.rejected, (state, action) => {
         state.loading = false;

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { loginApi, meApi } from "./authApi";
+import { loginApi, meApi, logoutApi } from "./authApi";
 import { toast } from "../../hooks/use-toast";
 
 const initialState = {
@@ -29,6 +29,32 @@ export const loginAdmin = createAsyncThunk(
       });
 
       return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await logoutApi();
+
+      toast({
+        title: "Logged out",
+        description: data.message || "Logout successful",
+      });
+
+      return true;
+    } catch (err) {
+      const message = err?.message || "Failed to logout";
+
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+
+      return rejectWithValue(message);
     }
   }
 );
@@ -73,21 +99,37 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       })
 
+      //logout
+
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // /ME
       .addCase(checkAuth.pending, (state) => {
         state.loading = true;
       })
-      .addCase(checkAuth.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        state.isAuthenticated = true;
-      })
-      .addCase(checkAuth.rejected, (state) => {
-        state.loading = false;
-        state.user = null;
-        state.isAuthenticated = false;
-      });
-  },
+    .addCase(checkAuth.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload.user;
+      state.isAuthenticated = true;
+    })
+    .addCase(checkAuth.rejected, (state) => {
+      state.loading = false;
+      state.user = null;
+      state.isAuthenticated = false;
+    });
+},
 });
 
 export const { logout } = authSlice.actions;

@@ -3,18 +3,20 @@ import User from "../models/user.model.js";
 
 export const authSeller = async (req, res, next) => {
   try {
-    const token = req.cookies.sellerToken;
+    const token = req.cookies.admin;
+    
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_ADMIN);    
 
     if (decoded.role !== "seller" && decoded.role !== "admin") {
       return res.status(403).json({ message: "Access denied" });
     }
 
     const seller = await User.findById(decoded.id).select("-password");
+    
     if (!seller) {
       return res.status(401).json({ message: "User no longer exists" });
     }
