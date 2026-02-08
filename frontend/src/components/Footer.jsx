@@ -19,7 +19,7 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row items-center justify-between ">
 
             <p className="text-text-secondary text-sm text-center sm:text-left">
-              © 2026 FreshMart. All rights reserved.
+              © 2026 ApnaMart. All rights reserved.
             </p>
 
             <div className="flex items-center gap-3">

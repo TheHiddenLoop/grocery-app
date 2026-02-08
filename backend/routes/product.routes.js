@@ -16,7 +16,7 @@ router.post("/add-product", authSeller, upload.array("images", 4), addProduct);
 router.put("/update", authSeller, editProduct);
 router.delete("/delete/:id", deleteProduct);
 router.get("/list", getProducts);
-router.get("/id", getProductById);
+router.get("/:id", getProductById);
 router.post("/stock", authSeller, changeStock);
 
 export default router;

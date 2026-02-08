@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { userToken } from "../config/generateToken.js";
 
 // register user: /api/user/register
 export const registerUser = async (req, res) => {
@@ -26,16 +27,9 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
     });
     await user.save();
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
 
-    res.cookie("token", token, {
-      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "Strict", // Prevent CSRF attacks
-      maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration time (7 days)
-    });
+    userToken(user, res);
+
     res.status(201).json({
       message: "User registered successfully",
       success: true,
@@ -43,7 +37,6 @@ export const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
       },
-      token,
     });
   } catch (error) {
     console.error("Error in registerUser:", error);
@@ -75,15 +68,9 @@ export const loginUser = async (req, res) => {
         .status(400)
         .json({ message: "Invalid credentials", success: false });
     }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    
+    userToken(user, res);
+
     res.status(200).json({
       message: "Logged in successfull",
       success: true,
