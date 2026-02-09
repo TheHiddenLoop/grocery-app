@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Plus, Minus, X, ArrowRight } from 'lucide-react';
 import { featuredProducts } from '../data/featuredProduct';
 import { CartCard } from '../components/CartCard';
+import Header from '../components/Header';
 
 export default function ShoppingCartPage() {
   const [cartItems, setCartItems] = useState(
@@ -57,6 +58,8 @@ export default function ShoppingCartPage() {
   };
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen py-8 px-4 md:py-16 bg-bg-primary text-text-primary">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-xl sm:text-2xl font-semibold mb-6 sm:mb-8 text-text-primary">
@@ -168,5 +171,6 @@ export default function ShoppingCartPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

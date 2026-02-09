@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Tag, Search, SlidersHorizontal, X } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { featuredProducts } from '../data/featuredProduct';
+import Header from '../components/Header';
 
 
 
@@ -44,6 +45,8 @@ const page = () => {
   const activeFiltersCount = [selectedCategory !== 'All', selectedBadge !== 'All', priceRange !== 'All', searchQuery !== ''].filter(Boolean).length;
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen bg-bg-primary text-text-primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-8">
         <div className="mb-8">
@@ -160,6 +163,7 @@ const page = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
