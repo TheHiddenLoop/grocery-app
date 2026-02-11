@@ -38,7 +38,7 @@ export default function ProductPage() {
                                     <div
                                         key={index}
                                         onClick={() => setSelectedImage(index)}
-                                        className={`h-16 w-16 sm:h-18 sm:w-18 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-bg-secondary
+                                        className={`h-16 w-16 sm:h-18 sm:w-18 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-bg-secondary
                     ${selectedImage === index
                                                 ? "border-2 border-primary"
                                                 : "border border-border"
