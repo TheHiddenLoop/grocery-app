@@ -1,10 +1,9 @@
-"use client"
-
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Tag, Search, SlidersHorizontal, X } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
-import { featuredProducts } from '../data/featuredProduct';
 import Header from '../components/Header';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProduct } from '../features/product/productSlice';
 
 
 
@@ -14,14 +13,18 @@ const page = () => {
   const [selectedBadge, setSelectedBadge] = useState('All');
   const [priceRange, setPriceRange] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.product.products);
 
+  useEffect(() => {
+    dispatch(getProduct());
+  }, [dispatch]);  
 
-
-  const categories = ['All', ...new Set(featuredProducts.map(p => p.category))];
-  const badges = ['All', ...new Set(featuredProducts.map(p => p.badge).filter(Boolean))];
+  const categories = ['All', ...new Set(products.map(p => p.category))];
+  const badges = ['All', ...new Set(products.map(p => p.badge).filter(Boolean))];
 
   const filteredProducts = useMemo(() => {
-    return featuredProducts.filter(product => {
+    return products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
       const matchesBadge = selectedBadge === 'All' || product.badge === selectedBadge;
@@ -33,7 +36,7 @@ const page = () => {
 
       return matchesSearch && matchesCategory && matchesBadge && matchesPrice;
     });
-  }, [searchQuery, selectedCategory, selectedBadge, priceRange, featuredProducts]);
+  }, [searchQuery, selectedCategory, selectedBadge, priceRange, products]);
 
   const clearFilters = () => {
     setSearchQuery('');

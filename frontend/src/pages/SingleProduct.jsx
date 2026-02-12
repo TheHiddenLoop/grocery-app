@@ -1,40 +1,40 @@
-"use client"
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Heart, Share2, Star, ChevronRight } from 'lucide-react';
 import { featuredProducts } from '../data/featuredProduct';
 import Button from '../components/Button';
 import Header from '../components/Header';
+import { useParams } from 'react-router';
+import { viewProduct } from '../features/product/productSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { singleProduct } from '../features/product/productSelector';
 
 export default function ProductPage() {
     const [selectedProductId, setSelectedProductId] = useState('1');
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
+    const dispatch = useDispatch();
+    const product = useSelector(singleProduct) || {};
 
-    const product = featuredProducts.find(p => p._id === selectedProductId);
-    const discount = Math.round(((product.price - product.offerPrice) / product.price) * 100);
+    // const product = featuredProducts.find(p => p._id === selectedProductId);
+    const discount = product.price && product.offerPrice ? Math.round(((product.price - product.offerPrice) / product.price) * 100) : 0;
+    const {id} = useParams();
+
+    useEffect(() => {
+        dispatch(viewProduct(id));
+      }, [dispatch, id]); 
+
 
     return (
         <>
-        <Header />
-        <div className="bg-bg-primary">
-            <div className="border-b border-border bg-bg-secondary py-2">
-                <div className="mx-auto flex max-w-350 items-center gap-2 px-5 text-sm text-text-secondary overflow-x-auto">
-                    <span className="cursor-pointer whitespace-nowrap">Home</span>
-                    <ChevronRight size={16} className="shrink-0" />
-                    <span className="cursor-pointer whitespace-nowrap">{product.category}</span>
-                    <ChevronRight size={16} className="shrink-0" />
-                    <span className="text-text-primary truncate">{product.name}</span>
-                </div>
-            </div>
-
-            <div className="mx-auto max-w-350 p-3 sm:p-[16.5px]">
+            <Header />
+            
+            <div className="bg-bg-primary min-h-[calc(100vh-65px)]">
+            <div className="mx-auto max-w-350 p-3 sm:p-8 lg:p-13">
                 <div className="grid grid-cols-1 lg:grid-cols-[650px_1fr] gap-4 sm:gap-6 lg:gap-10">
-                    <div className="lg:sticky lg:top-5 h-fit">
+                    <div className="lg:sticky lg:top-5">
                         <div className="flex flex-col lg:flex-row gap-2 sm:gap-3">
-                            {/* Thumbnails */}
                             <div className="flex flex-row lg:flex-col gap-2 sm:gap-3 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-hide">
-                                {product.images.map((image, index) => (
+                                {product.image?.map((image, index) => (
                                     <div
                                         key={index}
                                         onClick={() => setSelectedImage(index)}
@@ -55,9 +55,9 @@ export default function ProductPage() {
 
                             {/* Main Image - Fixed Size */}
                             <div className="relative overflow-hidden rounded-lg border border-border bg-bg-secondary">
-                                <div className="w-full h-72 sm:h-96 lg:h-145">
+                                <div className="w-full h-72 sm:h-96 lg:h-135">
                                     <img
-                                        src={product.images[selectedImage]}
+                                        src={product.image?.[selectedImage]}
                                         alt={product.name}
                                         className="h-full w-full object-cover"
                                     />
@@ -101,7 +101,7 @@ export default function ProductPage() {
                                 <Star size={14} className="text-success" />
                             </div>
                             <span className="text-sm text-text-secondary">
-                                {product.reviews.toLocaleString()} Ratings & Reviews
+                                {product.reviews?.toLocaleString()} Ratings & Reviews
                             </span>
                         </div>
 
@@ -124,7 +124,7 @@ export default function ProductPage() {
 
                         <div
                             className={`inline-block rounded-lg px-4 py-2 text-sm font-medium
-              ${product.inStock
+                                ${product.inStock
                                     ? "border border-success bg-success-bg text-success"
                                     : "border border-error bg-error-bg text-error"
                                 }`}
@@ -156,7 +156,7 @@ export default function ProductPage() {
                             <div className="mb-3 text-base font-semibold text-text-primary">
                                 Product Details
                             </div>
-                            {product.description.map((desc, i) => (
+                            {product.description?.map((desc, i) => (
                                 <div
                                     key={i}
                                     className="relative mb-2 pl-3 text-sm text-text-secondary last:mb-0"

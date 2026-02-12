@@ -49,7 +49,7 @@ export const addProduct = async (req, res) => {
       name,
       price,
       offerPrice,
-      description,
+      description : description.split(","),
       category,
       unit,
       stock,

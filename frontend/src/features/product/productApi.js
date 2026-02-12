@@ -10,3 +10,15 @@ export const viewProductApi = async (id) => {
     throw new Error(message);
   }
 };
+
+export const getProductApi = async () => {
+  try {
+    const res = await axiosInstance.get("/product/list");
+    
+    return res.data;
+  } catch (err) {
+    const message =
+      err?.response?.data?.message || err?.message || "Failed to add product";
+    throw new Error(message);
+  }
+};

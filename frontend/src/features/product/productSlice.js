@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { viewProductApi } from "./productApi";
+import { getProductApi, viewProductApi } from "./productApi";
 import toast from "react-hot-toast";
 
 export const viewProduct = createAsyncThunk(
@@ -8,12 +8,33 @@ export const viewProduct = createAsyncThunk(
     try {
       const data = await viewProductApi(id);
       console.log(data);
-      
+
       return data;
     } catch (err) {
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || err.message
       );
+    }
+  }
+);
+
+
+export const getProduct = createAsyncThunk(
+  "product/get",
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await getProductApi();
+      return data.products;
+    } catch (err) {
+      const message = err?.message || "Failed to get products";
+
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+
+      return rejectWithValue(message);
     }
   }
 );
@@ -47,7 +68,20 @@ const productSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
-      
+      //all product
+
+      .addCase(getProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products = action.payload;
+      })
+      .addCase(getProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
