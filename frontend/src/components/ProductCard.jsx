@@ -2,16 +2,20 @@ import { Heart, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import { useNavigate } from 'react-router';
+import { addToCart } from '../features/cart/cartSlice';
 
 export const ProductCard = ({ product, onAddToCart, onBuyNow, onToggleFavorite }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const nevigate =useNavigate();
+  const dispatch = useDispatch();
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
     if (product.inStock) onAddToCart?.(product);
+    dispatch(addToCart(product._id));
+
   };
 
   const handleBuyNow = (e) => {

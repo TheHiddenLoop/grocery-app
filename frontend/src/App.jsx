@@ -24,6 +24,9 @@ function App() {
   const authStatus = useSelector(selectAuthStatusCheck);
   const dispatch = useDispatch();
 
+  console.log(user);
+  
+
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);

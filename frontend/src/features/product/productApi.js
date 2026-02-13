@@ -22,3 +22,5 @@ export const getProductApi = async () => {
     throw new Error(message);
   }
 };
+
+
