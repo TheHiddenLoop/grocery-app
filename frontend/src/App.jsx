@@ -22,9 +22,12 @@ const ProtectedRoute = ({ isAuth, children }) => {
 function App() {
   const user = useSelector(selectAuthUser);
   const authStatus = useSelector(selectAuthStatusCheck);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch();  
 
-  console.log(user);
+  const cartCount = Object.values(user?.user?.cartItems || {}).reduce(
+    (sum, qty) => sum + qty,
+    0
+  );
   
 
   useEffect(() => {
@@ -46,7 +49,7 @@ function App() {
     <div className="min-h-screen">
       <Toaster />
       <Routes>
-        <Route path="/" element={<ProtectedRoute isAuth={!!user?.user}><Home /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute isAuth={!!user?.user}><Home cartCount = {cartCount} /></ProtectedRoute>} />
         <Route path="/products" element={<ProtectedRoute isAuth={!!user?.user}><Products /></ProtectedRoute>} />
         <Route path="/product/:id" element={<ProtectedRoute isAuth={!!user?.user}><SingleProduct /></ProtectedRoute>} />
         <Route path="/cart" element={<ProtectedRoute isAuth={!!user?.user}><Cart /></ProtectedRoute>} />

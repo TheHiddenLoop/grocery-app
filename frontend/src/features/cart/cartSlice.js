@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { addCartApi } from "./cartApi"
+import { addCartApi } from "./cartApi";
 import toast from "react-hot-toast";
 
 export const addToCart = createAsyncThunk(
@@ -8,14 +8,25 @@ export const addToCart = createAsyncThunk(
     try {
       const { cartItems } = getState().cart;
 
+      console.log(cartItems);
+      
+
       const updatedCart = {
         ...cartItems,
         [productId]: (cartItems[productId] || 0) + 1,
       };
 
       const data = await addCartApi(updatedCart);
+
+      if (!data?.cartItems) {
+        throw new Error("Invalid cart response");
+      }
+
       return data.cartItems;
     } catch (err) {
+      console.log(err);
+      
+      toast.error(err.message);
       return rejectWithValue(err.message);
     }
   }
@@ -29,14 +40,18 @@ const cartSlice = createSlice({
     error: null,
   },
   reducers: {
-    setCartFromServer: (state, action) => {
+    setCartFromServer(state, action) {
       state.cartItems = action.payload || {};
+    },
+    clearCartError(state) {
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(addToCart.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.loading = false;
@@ -44,11 +59,10 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-        toast.error("Cart update failed");
+        state.error = action.payload || "Cart update failed";
       });
   },
 });
 
-export const { setCartFromServer } = cartSlice.actions;
+export const { setCartFromServer, clearCartError } = cartSlice.actions;
 export default cartSlice.reducer;

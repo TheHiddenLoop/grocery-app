@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { ShoppingCart, Menu, X } from 'lucide-react';
+import { Link } from 'react-router';
+import { useSelector } from 'react-redux';
+import { selectAuthUser } from '../features/auth/authSelector';
 
-export default function Header() {
+export default function Header({cartCount}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navItems = ["Home", "Products", "Deals", "Contact"];
+  const user = useSelector(selectAuthUser);
+  
+  
 
   const scrollToSection = (sectionId) => {
     setMobileMenuOpen(false);
@@ -48,7 +54,15 @@ export default function Header() {
 
 
             <div className="flex items-center gap-3">
-              <button className="hidden sm:block p-1 hover:bg-primary-bg cursor-pointer rounded-lg transition-colors">
+              
+              <Link to={"/cart"} className="relative p-2 cursor-pointer hover:bg-primary-bg rounded-lg transition-colors">
+                <ShoppingCart className="w-5 h-5 text-text-primary" />
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-text-primary">{cartCount}</span>
+                </div>
+              </Link>
+              
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className=" p-1 hover:bg-primary-bg cursor-pointer rounded-lg transition-colors">
                 <div className="w-8 h-8 rounded-full bg-primary overflow-hidden flex items-center justify-center">
                   <img
                     src="/images/profile.jpg"
@@ -58,24 +72,6 @@ export default function Header() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-              </button>
-
-              <button className="relative p-2 cursor-pointer hover:bg-primary-bg rounded-lg transition-colors">
-                <ShoppingCart className="w-5 h-5 text-text-primary" />
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-xs font-bold text-text-primary">3</span>
-                </div>
-              </button>
-
-              <button
-                className="md:hidden p-2 hover:bg-primary-bg rounded-lg transition-colors"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-6 h-6 text-text-primary" />
-                ) : (
-                  <Menu className="w-6 h-6 text-text-primary" />
-                )}
               </button>
             </div>
           </div>

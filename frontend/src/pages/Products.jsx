@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Tag, Search, SlidersHorizontal, X } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
-import Header from '../components/Header';
+import Header from '../components/Header2';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProduct } from '../features/product/productSlice';
 

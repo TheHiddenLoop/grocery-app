@@ -9,7 +9,7 @@ import WhyChooseUs from "../components/WhyChooseUs";
 import {useDispatch, useSelector} from "react-redux"
 import { getProduct } from "../features/product/productSlice";
 
-const Page = () => {
+const Home = ({cartCount}) => {
 
   const dispatch = useDispatch();
   const products = useSelector((state) => state.product.products);
@@ -22,7 +22,7 @@ const Page = () => {
   return (
     <section
       className="relative bg-bg-primary overflow-hidden ">
-      <Header />
+      <Header cartCount={cartCount}/>
       <Hero />
       <GroceryCategories />
       <TopDeals />
@@ -33,4 +33,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default Home;

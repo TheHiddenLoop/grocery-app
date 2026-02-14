@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Plus, Minus, X, ArrowRight } from 'lucide-react';
 import { featuredProducts } from '../data/featuredProduct';
 import { CartCard } from '../components/CartCard';
-import Header from '../components/Header';
+import Header from '../components/Header2';
 
 export default function ShoppingCartPage() {
   const [cartItems, setCartItems] = useState(

@@ -10,6 +10,8 @@ export const ProductCard = ({ product, onAddToCart, onBuyNow, onToggleFavorite }
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const nevigate =useNavigate();
   const dispatch = useDispatch();
+  const loading = useSelector((state) => state.cart.loading);
+
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -53,7 +55,7 @@ export const ProductCard = ({ product, onAddToCart, onBuyNow, onToggleFavorite }
         />
 
         {discountPercentage > 0 && product.inStock && (
-          <span className="absolute top-4 left-4 px-4 py-1.5 rounded-full text-xs font-bold text-text-primary shadow bg-[#FF6B6B]">
+          <span className="absolute top-4 left-4 px-4 py-1.5 rounded-full text-xs font-bold text-text-primary shadow bg-error">
             -{discountPercentage}% OFF
           </span>
         )}
@@ -132,9 +134,9 @@ export const ProductCard = ({ product, onAddToCart, onBuyNow, onToggleFavorite }
 
           <div className="flex gap-2">
             <button
-              disabled={!product.inStock}
+              disabled={!product.inStock || loading === "loading"}
               onClick={handleAddToCart}
-              className={`p-2.5 rounded-lg border transition cursor-pointer ${
+              className={`p-2.5 rounded-lg border transition cursor-pointer ${loading === "loading" ? "cursor-not-allowed" : ""} ${
                 product.inStock
                   ? 'border-border bg-secondary-bg hover:bg-border'
                   : 'bg-border cursor-not-allowed'

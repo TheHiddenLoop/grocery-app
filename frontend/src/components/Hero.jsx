@@ -28,7 +28,7 @@ const Hero = () => {
           <div className="mt-7 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
 
             <Link
-              to="#"
+              to="/products"
               className="
                 px-7 py-3 rounded-xl
                 bg-primary text-white font-semibold
