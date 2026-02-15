@@ -3,12 +3,14 @@ import { ShoppingCart } from "lucide-react";
 import { categories } from "../data/categories";
 import Button from "./Button";
 import CategoryCard from "./CategoryCard";
+import { Link, useNavigate } from "react-router";
 
 export default function GroceryCategories() {
   const [hoveredCard, setHoveredCard] = useState(null);
+  const navigate = useNavigate();
 
   const handleCategoryClick = (name) => {
-    console.log(`Navigating to ${name}`);
+    navigate("/products");
   };
 
   return (
@@ -41,11 +43,11 @@ export default function GroceryCategories() {
         </div>
 
         <div className="mt-12 flex justify-center">
-          <Button
+          <Link
             text="View All Products"
-            onClick={() => console.log("View all products")}
-            className="px-8 bg-primary text-text-primary hover:bg-accent"
-          />
+            to={"/products"}
+            className="px-8 bg-primary text-text-primary hover:bg-accent font-semibold py-3 rounded-lg transition-skin focus:outline-none transform hover:scale-[1.02] active:scale-[0.98] text-sm cursor-pointer"
+          >View All Products</Link>
         </div>
       </div>
     </section>
