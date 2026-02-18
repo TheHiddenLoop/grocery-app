@@ -1,68 +1,142 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { addCartApi } from "./cartApi";
+import {
+  getCartApi,
+  addToCartApi,
+  updateCartApi,
+  removeFromCartApi,
+  clearCartApi,
+} from "./cartApi";
 import toast from "react-hot-toast";
 
-export const addToCart = createAsyncThunk(
-  "cart/add",
-  async (productId, { getState, rejectWithValue }) => {
+export const fetchCart = createAsyncThunk(
+  "cart/fetch",
+  async (_, { rejectWithValue }) => {
     try {
-      const { cartItems } = getState().cart;
-
-      console.log(cartItems);
-      
-
-      const updatedCart = {
-        ...cartItems,
-        [productId]: (cartItems[productId] || 0) + 1,
-      };
-
-      const data = await addCartApi(updatedCart);
-
-      if (!data?.cartItems) {
-        throw new Error("Invalid cart response");
-      }
-
+      const data = await getCartApi();
       return data.cartItems;
     } catch (err) {
-      console.log(err);
-      
       toast.error(err.message);
       return rejectWithValue(err.message);
     }
   }
 );
 
+export const addToCart = createAsyncThunk(
+  "cart/add",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const data = await addToCartApi(productId);
+      toast.success("Added to cart 🛒");
+      return data.cartItems;
+    } catch (err) {
+      toast.error(err.message);
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const updateCartItem = createAsyncThunk(
+  "cart/update",
+  async ({ productId, quantity }, { rejectWithValue }) => {
+    try {
+      const data = await updateCartApi(productId, quantity);
+      toast.success("Cart updated");
+      return data.cartItems;
+    } catch (err) {
+      toast.error(err.message);
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const removeFromCart = createAsyncThunk(
+  "cart/remove",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const data = await removeFromCartApi(productId);
+      toast.success("Item removed");
+      return data.cartItems;
+    } catch (err) {
+      toast.error(err.message);
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+
+export const clearCart = createAsyncThunk(
+  "cart/clear",
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await clearCartApi();
+      toast.success("Cart cleared");
+      return data.cartItems;
+    } catch (err) {
+      toast.error(err.message);
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    cartItems: {},
+    cartItems: [], 
     loading: false,
     error: null,
   },
   reducers: {
-    setCartFromServer(state, action) {
-      state.cartItems = action.payload || {};
-    },
-    clearCartError(state) {
+    resetCart(state) {
+      state.cartItems = [];
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(addToCart.pending, (state) => {
+      .addCase(fetchCart.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(addToCart.fulfilled, (state, action) => {
+      .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
         state.cartItems = action.payload;
       })
-      .addCase(addToCart.rejected, (state, action) => {
+      .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Cart update failed";
-      });
+        state.error = action.payload;
+      })
+
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("cart/") &&
+          action.type.endsWith("/fulfilled"),
+        (state, action) => {
+          state.loading = false;
+          state.cartItems = action.payload;
+        }
+      )
+
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("cart/") &&
+          action.type.endsWith("/pending"),
+        (state) => {
+          state.loading = true;
+          state.error = null;
+        }
+      )
+
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("cart/") &&
+          action.type.endsWith("/rejected"),
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        }
+      );
   },
 });
 
-export const { setCartFromServer, clearCartError } = cartSlice.actions;
+export const { resetCart } = cartSlice.actions;
 export default cartSlice.reducer;
