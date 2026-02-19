@@ -9,6 +9,7 @@ export default function Header({cartCount}) {
   const navItems = ["Home", "Products", "Deals", "Contact"];
   const user = useSelector(selectAuthUser);
   
+  console.log(user);
   
 
   const scrollToSection = (sectionId) => {
