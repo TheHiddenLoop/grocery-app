@@ -7,10 +7,7 @@ import { selectAuthUser } from '../features/auth/authSelector';
 export default function Header({cartCount}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navItems = ["Home", "Products", "Deals", "Contact"];
-  const user = useSelector(selectAuthUser);
-  
-  console.log(user);
-  
+  const user = useSelector(selectAuthUser);  
 
   const scrollToSection = (sectionId) => {
     setMobileMenuOpen(false);
