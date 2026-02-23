@@ -11,6 +11,7 @@ import { Loader } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import AddAddressPage from "./pages/AddAddressPage";
 
 const ProtectedRoute = ({ isAuth, children }) => {
   if (!isAuth) {
@@ -53,6 +54,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute isAuth={!!user?.user}><Home cartCount = {cartCount} /></ProtectedRoute>} />
         <Route path="/products" element={<ProtectedRoute isAuth={!!user?.user}><Products /></ProtectedRoute>} />
         <Route path="/product/:id" element={<ProtectedRoute isAuth={!!user?.user}><SingleProduct /></ProtectedRoute>} />
+        <Route path="/add-address" element={<ProtectedRoute isAuth={!!user?.user}><AddAddressPage /></ProtectedRoute>} />
         <Route path="/cart" element={<ProtectedRoute isAuth={!!user?.user}><Cart /></ProtectedRoute>} />
         <Route path="/login" element={user?.user ? <Navigate to="/" replace /> : <Login />} />
         <Route path="/signin" element={user?.user ? <Navigate to="/" replace /> : <Signin />} />
