@@ -3,7 +3,7 @@ import {axiosInstance} from "../../libs/axios.js"
 // COD Payment
 export const codPaymentApi = async (product) => {
   try {
-    const res = await axiosInstance.post("/payment/cod", { product });
+    const res = await axiosInstance.post("/order/cod", { product });
     return res.data;
   } catch (err) {
     throw new Error(
@@ -16,7 +16,7 @@ export const codPaymentApi = async (product) => {
 
 export const stripePaymentApi = async (product) => {
   try {
-    const res = await axiosInstance.post("/payment/stripe", { product });
+    const res = await axiosInstance.post("/order/online", { product });
     return res.data; 
   } catch (err) {
     throw new Error(

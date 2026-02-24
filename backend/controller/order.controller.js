@@ -2,6 +2,7 @@ import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import Stripe from "stripe";
 import dotenv from "dotenv";
+import User from "../models/user.model.js";
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export const placeOrderOnline = async (req, res) => {
   try {
     const userId = req.user;
-    const { items, address } = req.body;
+    const { items, address } = req.body.product;
 
     if (!address || !items || items.length === 0) {
       return res
@@ -100,21 +101,24 @@ export const placeOrderOnline = async (req, res) => {
 export const placeOrderCOD = async (req, res) => {
   try {
     const userId = req.user;
-    const { items, address } = req.body;    
+    const { items, address } = req.body.product;
 
     if (!address || !items || items.length === 0) {
       return res
         .status(400)
         .json({ message: "Invalid order details", success: false });
     }
-    // calculate amount using items;
-    let amount = await items.reduce(async (acc, item) => {
-      const product = await Product.findById(item.product);
-      return (await acc) + product.offerPrice * item.quantity;
-    }, 0);
+    let amount = 0;
 
-    // Add tex charfe 2%
+    for (let item of items) {
+      const product = await Product.findById(item.product);
+      if (!product) continue;
+
+      amount += product.offerPrice * item.quantity;
+    }
+
     amount += Math.floor((amount * 2) / 100);
+
     await Order.create({
       userId,
       items,
@@ -123,10 +127,15 @@ export const placeOrderCOD = async (req, res) => {
       paymentType: "COD",
       isPaid: false,
     });
+
+    await User.findByIdAndUpdate(userId, { cartItems: [] });
+
     res
       .status(201)
       .json({ message: "Order placed successfully", success: true });
+
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

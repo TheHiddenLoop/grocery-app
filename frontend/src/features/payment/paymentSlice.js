@@ -7,7 +7,9 @@ export const codPayment = createAsyncThunk(
   async (product, { rejectWithValue }) => {
     try {
       const data = await codPaymentApi(product);
-      toast.success("Order placed successfully (COD)");
+      console.log("here",product);
+      
+      toast.success(data.message);
       return data;
     } catch (err) {
       toast.error(err.message);

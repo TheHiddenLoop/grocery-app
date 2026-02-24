@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import Order from "../models/order.model.js";
+import User from "../models/user.model.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -26,14 +27,22 @@ export const stripeWebhook = async (req, res) => {
 
         if (!orderId) break;
 
-        await Order.findOneAndUpdate(
-          { _id: orderId, isPaid: false }, 
+        const order = await Order.findOneAndUpdate(
+          { _id: orderId, isPaid: false },
           {
             isPaid: true,
             status: "CONFIRMED",
             paidAt: new Date(),
-          }
+          },
+          { new: true }
         );
+
+        if (order) {
+          await User.findByIdAndUpdate(order.userId, {
+            $set: { cartItems: [] },
+          });
+        }
+
         break;
       }
 
@@ -44,6 +53,6 @@ export const stripeWebhook = async (req, res) => {
     res.status(200).json({ received: true });
   } catch (err) {
     console.error("Webhook handler error:", err);
-    res.status(200).json({ received: true }); // NEVER send 400 after verification
+    res.status(200).json({ received: true });
   }
 };

@@ -81,6 +81,8 @@ export default function ShoppingCartPage() {
       })),
       address: selectedAddressId,
     };
+    console.log(orderPayload);
+    
     try {
       if (paymentMethod === "COD") {
         await dispatch(codPayment(orderPayload)).unwrap();

@@ -21,10 +21,8 @@ export default function Header() {
     }, 100);
   };
 
-  const cartCount = Object.values(user?.user?.cartItems || {}).reduce(
-    (sum, qty) => sum + qty,
-    0
-  );
+  const cartCount = user?.user?.cartItems?.reduce( (sum, item) => sum + item.quantity, 0 ) || 0;
+
 
   return (
     <>
