@@ -159,13 +159,31 @@ export const getUserOrders = async (req, res) => {
 // get all orders for admin :/api/order/all
 export const getAllOrders = async (req, res) => {
   try {
+
     const orders = await Order.find({
-      $or: [{ paymentType: "COD" }, { isPaid: true }],
+      $or: [
+        { paymentType: "COD" },
+        { paymentType: "ONLINE", isPaid: true },
+      ],
     })
-      .populate("items.product address")
+      .populate({
+        path: "items.product",
+        select: "name price image",
+      })
+      .populate("address")
+      .populate("userId", "name email")
       .sort({ createdAt: -1 });
-    res.status(200).json({ success: true, orders });
+
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Admin Get Orders Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };

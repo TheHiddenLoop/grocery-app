@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Filter, Eye, RefreshCw, X } from "lucide-react";
 import { useStore } from "../store/useStore";
 import { Button } from "../components/ui/button";
@@ -21,6 +21,8 @@ import {
 } from "../components/ui/dialog";
 import { toast } from "../hooks/use-toast";
 import { format } from "date-fns";
+import { useDispatch, useSelector } from "react-redux";
+import { allOrders } from "../features/order/orderSlice";
 
 const statusOptions = ["pending", "processing", "shipped", "delivered", "cancelled"];
 
@@ -42,6 +44,15 @@ export default function Orders() {
     const matchesStatus = statusFilter === "All" || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const dispatch = useDispatch();
+  const order = useSelector(state=>state.orders.orders);
+
+  console.log(order);
+
+  useEffect(()=>{
+    dispatch(allOrders());
+  }, [dispatch]);
 
   const getStatusVariant = (status) => {
     switch (status) {
