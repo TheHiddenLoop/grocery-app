@@ -166,10 +166,7 @@ export const getAllOrders = async (req, res) => {
         { paymentType: "ONLINE", isPaid: true },
       ],
     })
-      .populate({
-        path: "items.product",
-        select: "name price image",
-      })
+      .populate({ path: "items.product"})
       .populate("address")
       .populate("userId", "name email")
       .sort({ createdAt: -1 });
@@ -181,6 +178,184 @@ export const getAllOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Admin Get Orders Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    const validStatuses = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+
+    if (!status || !validStatuses.includes(status.toUpperCase())) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+      });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    const terminalStatuses = ["DELIVERED", "CANCELLED"];
+    if (terminalStatuses.includes(order.status.toUpperCase())) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot update a ${order.status} order`,
+      });
+    }
+
+    order.status = status.toUpperCase();
+    await order.save();
+
+    // Re-populate for consistent response shape
+    const updatedOrder = await Order.findById(orderId)
+      .populate({ path: "items.product" })
+      .populate("address")
+      .populate("userId", "name email");
+
+    return res.status(200).json({
+      success: true,
+      message: `Order status updated to ${status.toUpperCase()}`,
+      order: updatedOrder,
+    });
+  } catch (error) {
+    console.error("Update Order Status Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+// PUT /api/order/:orderId/cancel
+export const cancelOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.status.toUpperCase() !== "PENDING") {
+      return res.status(400).json({
+        success: false,
+        message: `Only PENDING orders can be cancelled. Current status: ${order.status}`,
+      });
+    }
+
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(item.product, {
+        $inc: { stock: item.quantity },
+      });
+    }
+
+    order.status = "CANCELLED";
+    await order.save();
+
+    const updatedOrder = await Order.findById(orderId)
+      .populate({ path: "items.product" })
+      .populate("address")
+      .populate("userId", "name email");
+
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully",
+      order: updatedOrder,
+    });
+  } catch (error) {
+    console.error("Cancel Order Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
+export const getDashboardStats = async (req, res) => {
+  try {
+    const totalProducts = await Product.countDocuments();
+
+    const outOfStockProducts = await Product.countDocuments({ stock: 0 });
+
+    const lowStockProducts = await Product.countDocuments({
+      stock: { $gt: 0, $lte: 10 },
+    });
+
+    const validOrderFilter = {
+      $or: [
+        { paymentType: "COD" },
+        { paymentType: "ONLINE", isPaid: true },
+      ],
+    };
+
+    const totalOrders = await Order.countDocuments(validOrderFilter);
+
+    const pendingOrders = await Order.countDocuments({
+      ...validOrderFilter,
+      status: "PENDING",
+    });
+
+    const revenueResult = await Order.aggregate([
+      {
+        $match: {
+          ...validOrderFilter,
+          status: { $ne: "CANCELLED" },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$amount" },
+        },
+      },
+    ]);
+    const totalRevenue = revenueResult[0]?.totalRevenue || 0;
+
+    const recentOrders = await Order.find(validOrderFilter)
+      .populate({ path: "items.product", select: "name image offerPrice price unit" })
+      .populate("address")
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    const lowStockProductsList = await Product.find({
+      stock: { $gt: 0, $lte: 10 },
+    }).select("name image stock unit category");
+
+    return res.status(200).json({
+      success: true,
+      stats: {
+        totalProducts,
+        outOfStockProducts,
+        lowStockProducts,
+        totalOrders,
+        pendingOrders,
+        totalRevenue,
+      },
+      recentOrders,
+      lowStockProductsList,
+    });
+  } catch (error) {
+    console.error("Dashboard Stats Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
