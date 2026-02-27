@@ -2,38 +2,48 @@ import React, { useEffect, useState } from 'react';
 import { Heart, Loader2, Share2, Star } from 'lucide-react';
 import Button from '../components/Button';
 import Header from '../components/Header2';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { viewProduct } from '../features/product/productSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectProductStatus, singleProduct } from '../features/product/productSelector';
+import { addToCart } from '../features/cart/cartSlice';
 
 export default function ProductPage() {
-    const [selectedProductId, setSelectedProductId] = useState('1');
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const product = useSelector(singleProduct) || {};
     const loading = useSelector(selectProductStatus);
+    const cartLoading = useSelector((state) => state.cart.loading);
 
-    // const product = featuredProducts.find(p => p._id === selectedProductId);
-    const discount = product.price && product.offerPrice ? Math.round(((product.price - product.offerPrice) / product.price) * 100) : 0;
+    const discount = product.price && product.offerPrice
+        ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
+        : 0;
     const { id } = useParams();
 
     useEffect(() => {
         dispatch(viewProduct(id));
     }, [dispatch, id]);
 
-    if (loading === "loading" || loading === "idle") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-primary font-robot">
-        <Loader2
-          className="h-12 w-12 animate-spin text-primary"
-          strokeWidth={2.5}
-        />
-      </div>
-    );
-  }
+    const handleAddToCart = () => {
+        if (!product.inStock) return;
+        dispatch(addToCart(product._id));
+    };
 
+    const handleBuyNow = async () => {
+        if (!product.inStock) return;
+        await dispatch(addToCart(product._id));
+        navigate('/cart');
+    };
+
+    if (loading === "loading" || loading === "idle") {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-bg-primary font-robot">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" strokeWidth={2.5} />
+            </div>
+        );
+    }
 
     return (
         <>
@@ -49,7 +59,7 @@ export default function ProductPage() {
                                             key={index}
                                             onClick={() => setSelectedImage(index)}
                                             className={`h-16 w-16 sm:h-18 sm:w-18 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-bg-secondary
-                    ${selectedImage === index
+                                                ${selectedImage === index
                                                     ? "border-2 border-primary"
                                                     : "border border-border"
                                                 }`}
@@ -63,7 +73,6 @@ export default function ProductPage() {
                                     ))}
                                 </div>
 
-                                {/* Main Image - Fixed Size */}
                                 <div className="relative overflow-hidden rounded-lg border border-border bg-bg-secondary">
                                     <div className="w-full h-72 sm:h-96 lg:h-135">
                                         <img
@@ -105,9 +114,7 @@ export default function ProductPage() {
 
                             <div className="flex flex-wrap items-center gap-4 border-b border-border pb-3">
                                 <div className="flex items-center gap-1 rounded-full bg-success-bg px-3 py-1">
-                                    <span className="font-semibold text-success">
-                                        {product.rating}
-                                    </span>
+                                    <span className="font-semibold text-success">{product.rating}</span>
                                     <Star size={14} className="text-success" />
                                 </div>
                                 <span className="text-sm text-text-secondary">
@@ -118,36 +125,35 @@ export default function ProductPage() {
                             <div>
                                 <div className="mb-2 flex flex-wrap items-baseline gap-3">
                                     <span className="text-2xl sm:text-3xl font-semibold text-text-primary">
-                                        ${product.offerPrice}
+                                        ₹{product.offerPrice}
                                     </span>
                                     <span className="text-base sm:text-lg line-through text-text-secondary">
-                                        ${product.price}
+                                        ₹{product.price}
                                     </span>
-                                    <span className="font-semibold text-success">
-                                        {discount}% off
-                                    </span>
+                                    <span className="font-semibold text-success">{discount}% off</span>
                                 </div>
                                 <p className="text-xs text-text-secondary">
-                                    + Free Shipping on orders over $25
+                                    + Free Shipping on orders over ₹500
                                 </p>
                             </div>
 
                             <div
                                 className={`inline-block rounded-lg px-4 py-2 text-sm font-medium
                                 ${product.inStock
-                                        ? "border border-success bg-success-bg text-success"
-                                        : "border border-error bg-error-bg text-error"
-                                    }`}
+                                    ? "border border-success bg-success-bg text-success"
+                                    : "border border-error bg-error-bg text-error"
+                                }`}
                             >
                                 {product.inStock ? "✓ In Stock" : "✗ Out of Stock"}
                             </div>
 
                             <div>
-                                <div className="mb-3 font-semibold text-text-primary">
-                                    Quantity
-                                </div>
+                                <div className="mb-3 font-semibold text-text-primary">Quantity</div>
                                 <div className="flex items-center gap-3">
-                                    <button onClick={() => setQuantity(prev => (prev > 1 ? prev - 1 : 1))} className="cursor-pointer h-10 w-10 rounded-lg border border-border bg-bg-secondary text-primary text-xl font-semibold">
+                                    <button
+                                        onClick={() => setQuantity(prev => (prev > 1 ? prev - 1 : 1))}
+                                        className="cursor-pointer h-10 w-10 rounded-lg border border-border bg-bg-secondary text-primary text-xl font-semibold"
+                                    >
                                         -
                                     </button>
                                     <input
@@ -156,7 +162,10 @@ export default function ProductPage() {
                                         readOnly
                                         className="h-10 w-20 rounded-lg border border-border bg-bg-secondary text-center text-text-primary"
                                     />
-                                    <button onClick={() => setQuantity(prev => prev + 1)} className="cursor-pointer h-10 w-10 rounded-lg border border-border bg-bg-secondary text-primary text-xl font-semibold">
+                                    <button
+                                        onClick={() => setQuantity(prev => prev + 1)}
+                                        className="cursor-pointer h-10 w-10 rounded-lg border border-border bg-bg-secondary text-primary text-xl font-semibold"
+                                    >
                                         +
                                     </button>
                                 </div>
@@ -167,10 +176,7 @@ export default function ProductPage() {
                                     Product Details
                                 </div>
                                 {product.description?.map((desc, i) => (
-                                    <div
-                                        key={i}
-                                        className="relative mb-2 pl-3 text-sm text-text-secondary last:mb-0"
-                                    >
+                                    <div key={i} className="relative mb-2 pl-3 text-sm text-text-secondary last:mb-0">
                                         <span className="absolute left-0 text-primary">•</span>
                                         {desc}
                                     </div>
@@ -178,14 +184,29 @@ export default function ProductPage() {
                             </div>
 
                             <div className="flex gap-3">
-                                <Button
-                                    text="ADD TO CART"
-                                    className="flex-1 bg-warning text-bg-primary hover:opacity-90"
-                                />
-                                <Button
-                                    text="BUY NOW"
-                                    className="flex-1 bg-error text-white hover:opacity-90"
-                                />
+                                <button
+                                    onClick={handleAddToCart}
+                                    disabled={!product.inStock || cartLoading === "loading"}
+                                    className={`flex-1 py-3 rounded-lg font-semibold text-sm transition
+                                        ${product.inStock && cartLoading !== "loading"
+                                            ? "bg-warning text-bg-primary hover:opacity-90 cursor-pointer"
+                                            : "bg-border text-text-secondary cursor-not-allowed"
+                                        }`}
+                                >
+                                    {cartLoading === "loading" ? "Adding..." : "ADD TO CART"}
+                                </button>
+
+                                <button
+                                    onClick={handleBuyNow}
+                                    disabled={!product.inStock || cartLoading === "loading"}
+                                    className={`flex-1 py-3 rounded-lg font-semibold text-sm transition
+                                        ${product.inStock && cartLoading !== "loading"
+                                            ? "bg-error text-white hover:opacity-90 cursor-pointer"
+                                            : "bg-border text-text-secondary cursor-not-allowed"
+                                        }`}
+                                >
+                                    BUY NOW
+                                </button>
                             </div>
                         </div>
                     </div>

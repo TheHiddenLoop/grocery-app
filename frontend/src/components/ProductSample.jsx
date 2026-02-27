@@ -1,13 +1,9 @@
 import { useSelector } from 'react-redux';
-import { featuredProducts } from '../data/featuredProduct';
-import { ProductCard } from './ProductCard';
-
+import { HomeProductCard } from './HomeCard';
 
 
 export default function TopDeals() {
     const products = useSelector((state) => state.product.products);
-
-  
 
   return (
     <section id="deals" className="min-h-screen bg-bg-primary py-16">
@@ -19,7 +15,7 @@ export default function TopDeals() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
+            <HomeProductCard key={product._id} product={product} />
           ))}
         </div>
       </div>

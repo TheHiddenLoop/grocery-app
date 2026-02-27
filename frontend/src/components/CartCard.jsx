@@ -31,13 +31,13 @@ export const CartCard = ({ item, onUpdateQuantity, onRemove }) => {
 
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-lg font-bold text-success">
-              ${item.offerPrice.toFixed(2)}
+              ₹{item.offerPrice.toFixed(2)}
             </span>
             <span className="text-sm line-through text-text-secondary">
-              ${item.price.toFixed(2)}
+              ₹{item.price.toFixed(2)}
             </span>
             <span className="text-xs font-semibold px-2 py-1 rounded bg-success-bg text-success">
-              Save ${(item.price - item.offerPrice).toFixed(2)}
+              Save ₹{(item.price - item.offerPrice).toFixed(2)}
             </span>
           </div>
 
@@ -69,7 +69,7 @@ export const CartCard = ({ item, onUpdateQuantity, onRemove }) => {
             </div>
 
             <p className="text-base font-bold text-primary">
-              ${(item.offerPrice * item.quantity).toFixed(2)}
+              ₹{(item.offerPrice * item.quantity).toFixed(2)}
             </p>
           </div>
 
