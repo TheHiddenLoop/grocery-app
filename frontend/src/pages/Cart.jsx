@@ -85,13 +85,12 @@ export default function ShoppingCartPage() {
     try {
       if (paymentMethod === "COD") {
         await dispatch(codPayment(orderPayload)).unwrap();
-        toast.success("Order placed successfully!");
       }
       if (paymentMethod === "ONLINE") {
         await dispatch(stripePayment(orderPayload)).unwrap();
       }
     } catch (error) {
-      toast.error(error || "Checkout failed");
+      console.log(error || "Checkout failed");
     }
   };
 

@@ -140,19 +140,81 @@ export const placeOrderCOD = async (req, res) => {
   }
 };
 
-// oredr details for individual user :/api/order/user
+// GET /order/user — fetch all orders for logged-in user
 export const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
+
     const orders = await Order.find({
       userId,
-      $or: [{ paymentType: "COD" }, { isPaid: true }],
+      $or: [
+        { paymentType: "COD" },
+        { paymentType: "ONLINE", isPaid: true },
+      ],
     })
-      .populate("items.product address")
+      .populate({
+        path: "items.product",
+        select: "name price offerPrice image unit category inStock",
+      })
+      .populate({
+        path: "address",
+        select: "street city state pincode",
+      })
+      .select("_id userId items amount status paymentType isPaid address createdAt updatedAt")
       .sort({ createdAt: -1 });
-    res.status(200).json({ success: true, orders });
+
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("User Get Orders Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+// PATCH /order/user/:orderId/cancel — cancel an order
+export const cancelOrderUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { orderId } = req.params;
+  
+    const order = await Order.findOne({ _id: orderId, userId });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    const cancellableStatuses = ["PENDING", "CONFIRMED", "PROCESSING"];
+    if (!cancellableStatuses.includes(order.status?.toUpperCase())) {
+      return res.status(400).json({
+        success: false,
+        message: "Order cannot be cancelled at this stage",
+      });
+    }
+
+    order.status = "CANCELLED";
+    order.cancelledAt = new Date();
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully",
+      order,
+    });
+  } catch (error) {
+    console.error("Cancel Order Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
 
@@ -191,7 +253,14 @@ export const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+    const validStatuses = [
+      "PENDING",
+      "CONFIRMED",
+      "PROCESSING",
+      "SHIPPED",
+      "DELIVERED",
+      "CANCELLED",
+    ];
 
     if (!status || !validStatuses.includes(status.toUpperCase())) {
       return res.status(400).json({
@@ -218,9 +287,17 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     order.status = status.toUpperCase();
+
+    if (
+      order.paymentType === "COD" &&
+      order.status === "DELIVERED" &&
+      !order.isPaid
+    ) {
+      order.isPaid = true;
+    }
+
     await order.save();
 
-    // Re-populate for consistent response shape
     const updatedOrder = await Order.findById(orderId)
       .populate({ path: "items.product" })
       .populate("address")

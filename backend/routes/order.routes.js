@@ -2,6 +2,7 @@ import express from "express";
 import authUser from "../middlewares/authUser.js";
 import {
   cancelOrder,
+  cancelOrderUser,
   getAllOrders,
   getDashboardStats,
   getUserOrders,
@@ -14,6 +15,7 @@ import { authSeller } from "../middlewares/authSeller.js";
 const router = express.Router();
 router.post("/cod", authUser, placeOrderCOD);
 router.get("/user", authUser, getUserOrders);
+router.patch("/user/:orderId/cancel", authUser, cancelOrderUser)
 router.get("/seller", authSeller, getAllOrders);
 router.post("/online", authUser, placeOrderOnline);
 router.put("/:orderId/cancel", authSeller, cancelOrder);
