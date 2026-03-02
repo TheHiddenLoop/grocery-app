@@ -24,7 +24,7 @@ export function CancelModal({ order, onConfirm, onClose, loading }) {
         <div className="sm:hidden flex justify-center pt-3 pb-1">
           <div className="h-1 w-10 rounded-full bg-border" />
         </div>
-        <div className="h-1 w-full bg-gradient-to-r from-error/60 via-error to-error/60" />
+        <div className="h-1 w-full bg-linear-to-r from-error/60 via-error to-error/60" />
 
         <div className="p-6">
           <div className="flex items-start gap-4 mb-6">

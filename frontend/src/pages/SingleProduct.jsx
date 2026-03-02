@@ -6,7 +6,7 @@ import { useParams, useNavigate } from 'react-router';
 import { viewProduct } from '../features/product/productSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectProductStatus, singleProduct } from '../features/product/productSelector';
-import { addToCart } from '../features/cart/cartSlice';
+import { addToCart, fetchCart } from '../features/cart/cartSlice';
 
 export default function ProductPage() {
     const [selectedImage, setSelectedImage] = useState(0);
@@ -29,6 +29,7 @@ export default function ProductPage() {
     const handleAddToCart = () => {
         if (!product.inStock) return;
         dispatch(addToCart(product._id));
+        dispatch(fetchCart());
     };
 
     const handleBuyNow = async () => {

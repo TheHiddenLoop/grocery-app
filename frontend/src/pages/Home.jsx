@@ -8,6 +8,7 @@ import TopDeals from "../components/ProductSample";
 import WhyChooseUs from "../components/WhyChooseUs";
 import {useDispatch, useSelector} from "react-redux"
 import { getProduct } from "../features/product/productSlice";
+import { fetchCart } from "../features/cart/cartSlice";
 
 const Home = ({cartCount}) => {
 
@@ -15,14 +16,16 @@ const Home = ({cartCount}) => {
   const products = useSelector((state) => state.product.products);
 
   useEffect(() => {
-    dispatch(getProduct());
+    dispatch(fetchCart());
+    
   }, [dispatch]);  
   
-
+    const { cartItems } = useSelector((state) => state.cart);
+    
   return (
     <section
       className="relative bg-bg-primary overflow-hidden ">
-      <Header cartCount={cartCount}/>
+      <Header cartCount={cartItems.length || 0}/>
       <Hero />
       <GroceryCategories />
       <TopDeals />

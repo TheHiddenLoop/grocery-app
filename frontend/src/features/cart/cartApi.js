@@ -6,65 +6,54 @@ export const getCartApi = async () => {
     return res.data;
   } catch (err) {
     throw new Error(
-      err?.response?.data?.message ||
-      err?.message ||
-      "Failed to fetch cart"
+      err?.response?.data?.message || err?.message || "Failed to fetch cart"
     );
   }
 };
 
 export const addToCartApi = async (productId) => {
   try {
-    const res = await axiosInstance.post("cart/add", { productId });
+    const res = await axiosInstance.post("/cart/add", { productId });
     return res.data;
   } catch (err) {
     throw new Error(
-      err?.response?.data?.message ||
-      err?.message ||
-      "Failed to add to cart"
+      err?.response?.data?.message || err?.message || "Failed to add to cart"
     );
   }
 };
 
 export const updateCartApi = async (productId, quantity) => {
   try {
-    const res = await axiosInstance.post("/cart/update", {
+    const res = await axiosInstance.patch("/cart/update", {
       productId,
       quantity,
     });
     return res.data;
   } catch (err) {
     throw new Error(
-      err?.response?.data?.message ||
-      err?.message ||
-      "Failed to update cart"
+      err?.response?.data?.message || err?.message || "Failed to update cart"
     );
   }
 };
 
 export const removeFromCartApi = async (productId) => {
   try {
-    const res = await axiosInstance.post("/cart/remove", { productId });
+    const res = await axiosInstance.delete(`/cart/${productId}`);
     return res.data;
   } catch (err) {
     throw new Error(
-      err?.response?.data?.message ||
-      err?.message ||
-      "Failed to remove item"
+      err?.response?.data?.message || err?.message || "Failed to remove item"
     );
   }
 };
 
-
 export const clearCartApi = async () => {
   try {
-    const res = await axiosInstance.post("/cart/clear");
+    const res = await axiosInstance.delete("/cart/clear");
     return res.data;
   } catch (err) {
     throw new Error(
-      err?.response?.data?.message ||
-      err?.message ||
-      "Failed to clear cart"
+      err?.response?.data?.message || err?.message || "Failed to clear cart"
     );
   }
 };

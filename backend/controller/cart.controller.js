@@ -1,27 +1,24 @@
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
 
+const cleanCartItems = (cartItems) =>
+  cartItems.filter((item) => item.productId);
+
 export const getCart = async (req, res) => {
   try {
     const userId = req.user?._id;
 
-    const user = await User.findById(userId).populate(
-      "cartItems.productId"
-    );
+    const user = await User.findById(userId).populate("cartItems.productId");
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    user.cartItems = user.cartItems.filter(
-      (item) => item.productId
-    );
-
-    await user.save();
+    const cartItems = cleanCartItems(user.cartItems);
 
     res.status(200).json({
       success: true,
-      cartItems: user.cartItems,
+      cartItems,
     });
   } catch (error) {
     res.status(500).json({
@@ -46,18 +43,11 @@ export const addToCart = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    user.cartItems = user.cartItems.filter(
-      (item) => item.productId
-    );
-
     const itemIndex = user.cartItems.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) => item.productId?.toString() === productId
     );
 
     if (itemIndex > -1) {
@@ -91,20 +81,36 @@ export const updateCartItem = async (req, res) => {
     const userId = req.user?._id;
     const { productId, quantity } = req.body;
 
-    if (
-      !productId ||
-      !mongoose.Types.ObjectId.isValid(productId) ||
-      quantity < 1
-    ) {
+    if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid productId or quantity",
+        message: "Invalid productId",
+      });
+    }
+
+    if (quantity === 0) {
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { $pull: { cartItems: { productId: new mongoose.Types.ObjectId(productId) } } },
+        { new: true }
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Item removed from cart",
+        cartItems: user.cartItems,
+      });
+    }
+
+    if (quantity < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity must be 0 (remove) or greater",
       });
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     const item = user.cartItems.find(
@@ -138,7 +144,7 @@ export const updateCartItem = async (req, res) => {
 export const removeFromCart = async (req, res) => {
   try {
     const userId = req.user?._id;
-    const { productId } = req.body;
+    const { productId } = req.params; 
 
     if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({
@@ -149,12 +155,12 @@ export const removeFromCart = async (req, res) => {
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { $pull: { cartItems: { productId } } },
+      { $pull: { cartItems: { productId: new mongoose.Types.ObjectId(productId) } } },
       { new: true }
     );
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({
@@ -171,9 +177,6 @@ export const removeFromCart = async (req, res) => {
   }
 };
 
-/* =========================
-   CLEAR CART
-========================= */
 export const clearCart = async (req, res) => {
   try {
     const userId = req.user?._id;
@@ -185,7 +188,7 @@ export const clearCart = async (req, res) => {
     );
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({

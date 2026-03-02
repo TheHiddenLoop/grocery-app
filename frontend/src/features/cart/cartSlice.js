@@ -8,6 +8,7 @@ import {
 } from "./cartApi";
 import toast from "react-hot-toast";
 
+
 export const fetchCart = createAsyncThunk(
   "cart/fetch",
   async (_, { rejectWithValue }) => {
@@ -26,7 +27,7 @@ export const addToCart = createAsyncThunk(
   async (productId, { rejectWithValue }) => {
     try {
       const data = await addToCartApi(productId);
-      toast.success("Added to cart 🛒");
+      toast.success(data.message);
       return data.cartItems;
     } catch (err) {
       toast.error(err.message);
@@ -40,7 +41,6 @@ export const updateCartItem = createAsyncThunk(
   async ({ productId, quantity }, { rejectWithValue }) => {
     try {
       const data = await updateCartApi(productId, quantity);
-      toast.success("Cart updated");
       return data.cartItems;
     } catch (err) {
       toast.error(err.message);
@@ -63,7 +63,6 @@ export const removeFromCart = createAsyncThunk(
   }
 );
 
-
 export const clearCart = createAsyncThunk(
   "cart/clear",
   async (_, { rejectWithValue }) => {
@@ -79,47 +78,34 @@ export const clearCart = createAsyncThunk(
 );
 
 
+const countItems = (cartItems = []) => cartItems.length;
+
+const countTotalQuantity = (cartItems = []) =>
+  cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    cartItems: [], 
+    cartItems: [],
+    itemCount: 0,      
+    totalQuantity: 0,  
     loading: false,
     error: null,
   },
   reducers: {
     resetCart(state) {
       state.cartItems = [];
+      state.itemCount = 0;
+      state.totalQuantity = 0;
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCart.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchCart.fulfilled, (state, action) => {
-        state.loading = false;
-        state.cartItems = action.payload;
-      })
-      .addCase(fetchCart.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
       .addMatcher(
         (action) =>
-          action.type.startsWith("cart/") &&
-          action.type.endsWith("/fulfilled"),
-        (state, action) => {
-          state.loading = false;
-          state.cartItems = action.payload;
-        }
-      )
-
-      .addMatcher(
-        (action) =>
-          action.type.startsWith("cart/") &&
-          action.type.endsWith("/pending"),
+          action.type.startsWith("cart/") && action.type.endsWith("/pending"),
         (state) => {
           state.loading = true;
           state.error = null;
@@ -128,8 +114,18 @@ const cartSlice = createSlice({
 
       .addMatcher(
         (action) =>
-          action.type.startsWith("cart/") &&
-          action.type.endsWith("/rejected"),
+          action.type.startsWith("cart/") && action.type.endsWith("/fulfilled"),
+        (state, action) => {
+          state.loading = false;
+          state.cartItems = action.payload ?? [];
+          state.itemCount = countItems(state.cartItems);
+          state.totalQuantity = countTotalQuantity(state.cartItems);
+        }
+      )
+
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("cart/") && action.type.endsWith("/rejected"),
         (state, action) => {
           state.loading = false;
           state.error = action.payload;
@@ -140,3 +136,10 @@ const cartSlice = createSlice({
 
 export const { resetCart } = cartSlice.actions;
 export default cartSlice.reducer;
+
+
+export const selectCartItems = (state) => state.cart.cartItems;
+export const selectCartLoading = (state) => state.cart.loading;
+export const selectCartError = (state) => state.cart.error;
+export const selectItemCount = (state) => state.cart.itemCount;    
+export const selectTotalQuantity = (state) => state.cart.totalQuantity; 

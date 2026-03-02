@@ -3,26 +3,11 @@ import { ShoppingCart, Menu, X } from 'lucide-react';
 import { Link } from 'react-router';
 import { selectAuthUser } from '../features/auth/authSelector';
 import { useSelector } from 'react-redux';
+import { selectTotalQuantity, selectItemCount } from '../features/cart/cartSlice';
+
 
 export default function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navItems = ["Home", "Products", "Deals", "Contact"];
-    const user = useSelector(selectAuthUser);
-
-
-  const scrollToSection = (sectionId) => {
-    setMobileMenuOpen(false);
-
-    setTimeout(() => {
-      const el = document.getElementById(sectionId.toLowerCase());
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
-    }, 100);
-  };
-
-  const cartCount = user?.user?.cartItems?.reduce( (sum, item) => sum + item.quantity, 0 ) || 0;
-
+  const total = useSelector(selectItemCount);  
 
   return (
     <>
@@ -41,7 +26,7 @@ export default function Header() {
               <Link to={"/cart"} className="relative p-2 cursor-pointer hover:bg-primary-bg rounded-lg transition-colors">
                 <ShoppingCart className="w-5 h-5 text-text-primary" />
                 <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-xs font-bold text-text-primary">{cartCount}</span>
+                  <span className="text-xs font-bold text-text-primary">{total || 0}</span>
                 </div>
               </Link>
 

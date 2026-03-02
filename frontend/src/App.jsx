@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import AddAddressPage from "./pages/AddAddressPage";
 import UserOrders from "./pages/UserOrders";
+import { fetchCart } from "./features/cart/cartSlice";
 
 const ProtectedRoute = ({ isAuth, children }) => {
   if (!isAuth) {
@@ -24,18 +25,18 @@ const ProtectedRoute = ({ isAuth, children }) => {
 function App() {
   const user = useSelector(selectAuthUser);
   const authStatus = useSelector(selectAuthStatusCheck);
-  const dispatch = useDispatch();  
-
-  const cartCount = user?.user?.cartItems?.reduce(
-  (sum, item) => sum + item.quantity,
-  0
-) || 0;
-
-  
+  const dispatch = useDispatch();    
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchCart()); 
+    }
+  }, [user, dispatch]);
+
 
   if (authStatus === "loading" || authStatus === "idle") {
     return (
@@ -52,7 +53,7 @@ function App() {
     <div className="min-h-screen">
       <Toaster />
       <Routes>
-        <Route path="/" element={<ProtectedRoute isAuth={!!user?.user}><Home cartCount = {cartCount} /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute isAuth={!!user?.user}><Home /></ProtectedRoute>} />
         <Route path="/products" element={<ProtectedRoute isAuth={!!user?.user}><Products /></ProtectedRoute>} />
         <Route path="/product/:id" element={<ProtectedRoute isAuth={!!user?.user}><SingleProduct /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute isAuth={!!user?.user}><UserOrders /></ProtectedRoute>} />
