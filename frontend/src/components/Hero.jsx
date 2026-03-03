@@ -42,7 +42,7 @@ const Hero = () => {
             </Link>
 
             <Link
-              to="#"
+              to="#deals"
               className="
                 px-7 py-3 rounded-xl
                 border border-border-dark

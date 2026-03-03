@@ -91,6 +91,8 @@ export default function ShoppingCartPage() {
       }
     } catch (error) {
       console.log(error || "Checkout failed");
+    }finally{
+      dispatch(fetchCart());
     }
   };
 
@@ -124,7 +126,7 @@ export default function ShoppingCartPage() {
                 </p>
               </div>
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/products")}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-text-primary text-sm font-semibold hover:opacity-90 transition cursor-pointer"
               >
                 Shop Now
@@ -284,7 +286,7 @@ export default function ShoppingCartPage() {
                   <div className="flex items-center justify-center gap-2">
                     <span className="text-sm font-normal text-text-secondary">or</span>
                     <button
-                      onClick={() => navigate("/")}
+                      onClick={() => navigate("/products")}
                       className="inline-flex items-center cursor-pointer gap-2 text-sm font-medium text-primary underline hover:no-underline"
                     >
                       Continue Shopping

@@ -49,7 +49,7 @@ export const ProductCard = ({ product, onAddToCart, onBuyNow, onToggleFavorite }
           }`}
           onLoad={() => setImageLoaded(true)}
           onError={(e) => {
-            e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Product';
+            e.currentTarget.src = '/placeholder.svg';
             setImageLoaded(true);
           }}
         />

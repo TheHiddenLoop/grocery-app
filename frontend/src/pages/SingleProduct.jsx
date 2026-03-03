@@ -59,6 +59,11 @@ export default function ProductPage() {
                                         <div
                                             key={index}
                                             onClick={() => setSelectedImage(index)}
+                                            onError={(e) => {
+                                                e.currentTarget.src =
+                                                    "/placeholder.svg";
+                                                setSelectedImage(true);
+                                            }}
                                             className={`h-16 w-16 sm:h-18 sm:w-18 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-bg-secondary
                                                 ${selectedImage === index
                                                     ? "border-2 border-primary"
@@ -66,6 +71,11 @@ export default function ProductPage() {
                                                 }`}
                                         >
                                             <img
+                                                onError={(e) => {
+                                                    e.currentTarget.src =
+                                                        "/placeholder.svg";
+                                                    setSelectedImage(true);
+                                                }}
                                                 src={image}
                                                 alt={`${product.name} view ${index + 1}`}
                                                 className="h-full w-full object-cover"
@@ -79,6 +89,11 @@ export default function ProductPage() {
                                         <img
                                             src={product.image?.[selectedImage]}
                                             alt={product.name}
+                                            onError={(e) => {
+                                                e.currentTarget.onerror = null;
+                                                e.currentTarget.src = "/placeholder.svg";
+                                            }}
+
                                             className="h-full w-full object-cover"
                                         />
                                     </div>
@@ -141,9 +156,9 @@ export default function ProductPage() {
                             <div
                                 className={`inline-block rounded-lg px-4 py-2 text-sm font-medium
                                 ${product.inStock
-                                    ? "border border-success bg-success-bg text-success"
-                                    : "border border-error bg-error-bg text-error"
-                                }`}
+                                        ? "border border-success bg-success-bg text-success"
+                                        : "border border-error bg-error-bg text-error"
+                                    }`}
                             >
                                 {product.inStock ? "✓ In Stock" : "✗ Out of Stock"}
                             </div>

@@ -108,17 +108,18 @@ export const checkAuth = async (req, res) => {
 // logout user: /api/user/logout
 export const logout = async (req, res) => {
   try {
-    res.clearCookie("token", {
+    res.cookie("jwt", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "Strict",
+      secure: true,
+      sameSite: "none",
+      expires: new Date(0),
+      path: "/",
     });
-    return res.status(200).json({
-      message: "Logged out successfully",
-      success: true,
-    });
+
+    res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    console.error("Error in logout:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Logout error:", error.message);
+    res.status(500).json({ message: "Server error during logout" });
   }
 };
+

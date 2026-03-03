@@ -17,10 +17,6 @@ export default function GroceryCategories() {
     <section id="products" className="bg-bg-primary py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <div className="text-center mb-12">
-          <div className="inline-flex p-3 mb-4 bg-primary-bg rounded-full border-2 border-border">
-            <ShoppingCart className="w-8 h-8 text-primary" />
-          </div>
-
           <h2 className="text-3xl font-bold text-text-primary">
             Shop by Category
           </h2>
