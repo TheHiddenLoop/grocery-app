@@ -3,7 +3,7 @@ import { Package, ShoppingCart, DollarSign, AlertTriangle, Loader2 } from "lucid
 import { StatsCard } from "../components/dashboard/StatsCard";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDashboardStats } from "../features/dashboard/dashboardslice.js";
+import {fetchDashboardStats} from "../features/dashboard/dashboardSlice"
 
 const getStatusVariant = (status) => {
   switch ((status || "").toUpperCase()) {
