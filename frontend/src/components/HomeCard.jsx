@@ -64,7 +64,7 @@ export const HomeProductCard = ({ product }) => {
           </div>
         )}
 
-        <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-bg-secondary to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-10 bg-linear-to-t from-bg-secondary to-transparent" />
       </div>
 
       <div className="p-3 flex flex-col gap-1.5 flex-1">
