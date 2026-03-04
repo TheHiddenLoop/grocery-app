@@ -38,7 +38,17 @@ app.use("/api/address", addressRoutes);
 app.use("/api/order", orderRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  connectDB();
-  console.log(`Server is running on port ${PORT}`);
+
+app.get("/", (req, res) => {
+  res.send("API is running...");
 });
+
+
+async function main() {
+  await connectDB();
+  app.listen(PORT, () => {
+    console.log(`Server is running at http://localhost:${PORT}`);
+  });
+}
+
+main();
