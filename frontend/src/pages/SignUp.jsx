@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import RightAuthPanel from "../components/RightAuthPanel"
 import { Lock, Mail, User, UserPlus } from "lucide-react"
 import InputField from "../components/Input"
@@ -17,7 +17,7 @@ function Signup() {
 
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthStatus);
-
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -114,7 +114,8 @@ function Signup() {
             </p>
 
             <Button
-              text="Sign up"
+              disabled={loading === "loading"}
+              text={loading === "loading" ? "Signing up..." : "Sign Up"}
               className="w-full bg-primary text-text-primary hover:bg-secondary"
             />
           </form>

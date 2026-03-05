@@ -99,7 +99,8 @@ function Login() {
             </p>
 
             <Button
-              text="Login"
+              disabled={loading === "loading"}
+              text={loading === "loading" ? "Logging in..." : "Login"}
               className="w-full bg-primary text-text-primary hover:bg-secondary"
             />
           </form>
