@@ -101,7 +101,7 @@ export const placeOrderOnline = async (req, res) => {
       mode: "payment",
       payment_method_types: ["card"],
       line_items,
-      success_url: `${process.env.FRONTEND_URL}/my-orders?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.FRONTEND_URL}/orders?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/cart`,
       metadata: {
         orderId: order._id.toString(),
