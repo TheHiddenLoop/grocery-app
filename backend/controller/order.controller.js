@@ -11,56 +11,78 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //Online stripe
 export const placeOrderOnline = async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
     const { items, address } = req.body.product;
 
-    if (!address || !items || items.length === 0) {
+    console.log(items);
+    
+
+    if (!address || !Array.isArray(items) || items.length === 0) {
       return res
         .status(400)
-        .json({ message: "Invalid order details", success: false });
+        .json({ success: false, message: "Invalid order details" });
     }
 
-
-    const productIds = items.map(i => i.product);
+    const productIds = items.map((i) => i.product);
     const products = await Product.find({ _id: { $in: productIds } });
 
-    if (products.length !== items.length) {
-      return res.status(400).json({ message: "Invalid products" });
-    }
+    const productMap = new Map(products.map((p) => [p._id.toString(), p]));
 
-    let amount = 0;
+    for (const item of items) {
+      const product = productMap.get(item.product?.toString());
 
-    const line_items = items.map(item => {
-      const product = products.find(
-        p => p._id.toString() === item.product
-      );
-
-      if (!product || !product.inStock) {
-        throw new Error("Product unavailable");
+      if (!product) {
+        return res.status(400).json({
+          success: false,
+          message: `Product not found: ${item.product}`,
+        });
       }
 
-      amount += product.offerPrice * item.quantity;
+      if (!product.inStock) {
+        return res.status(400).json({
+          success: false,
+          message: `Product out of stock: ${product.name}`,
+        });
+      }
+
+      if (!item.quantity || item.quantity < 1) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid quantity for product: ${product.name}`,
+        });
+      }
+    }
+
+    let subtotal = 0;
+
+    const line_items = items.map((item) => {
+      const product = productMap.get(item.product.toString());
+      subtotal += product.offerPrice * item.quantity;
 
       return {
         price_data: {
           currency: "inr",
-          product_data: {
-            name: product.name,
-          },
+          product_data: { name: product.name },
           unit_amount: product.offerPrice * 100,
         },
         quantity: item.quantity,
       };
     });
 
-    const tax = Math.floor((amount * 2) / 100);
-    amount += tax;
+    const tax = Math.floor((subtotal * 2) / 100);
+    const totalAmount = subtotal + tax;
+
+    const itemsWithPrice = items.map((item) => ({
+      product: item.product,
+      quantity: item.quantity,
+      price: productMap.get(item.product.toString()).offerPrice,
+    }));
 
     const order = await Order.create({
       userId,
-      items,
+      items: itemsWithPrice,
       address,
-      amount,
+      amount: totalAmount,
       paymentType: "ONLINE",
       isPaid: false,
       status: "PENDING",
@@ -87,13 +109,13 @@ export const placeOrderOnline = async (req, res) => {
       },
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       url: session.url,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("placeOrderOnline error:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 

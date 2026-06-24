@@ -16,7 +16,7 @@ import { stripeWebhook } from "./controller/order.webhook.js";
 const app = express();
 
 // allow multiple origins
-const allowedOrigins = ["https://apnamartx.vercel.app", "https://grocery-in.vercel.app"];
+const allowedOrigins = ["https://apnamartx.vercel.app", "https://grocery-in.vercel.app","http://localhost:5173"];
 //middlewares
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(cookieParser());
