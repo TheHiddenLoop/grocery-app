@@ -11,11 +11,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //Online stripe
 export const placeOrderOnline = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user;
     const { items, address } = req.body.product;
-
-    console.log(items);
-    
 
     if (!address || !Array.isArray(items) || items.length === 0) {
       return res
@@ -63,7 +60,7 @@ export const placeOrderOnline = async (req, res) => {
         price_data: {
           currency: "inr",
           product_data: { name: product.name },
-          unit_amount: product.offerPrice * 100,
+          unit_amount: product.offerPrice * 100, // Stripe expects paise
         },
         quantity: item.quantity,
       };
@@ -75,7 +72,7 @@ export const placeOrderOnline = async (req, res) => {
     const itemsWithPrice = items.map((item) => ({
       product: item.product,
       quantity: item.quantity,
-      price: productMap.get(item.product.toString()).offerPrice,
+      price: productMap.get(item.product.toString()).offerPrice, // price lock
     }));
 
     const order = await Order.create({
