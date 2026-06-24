@@ -11,7 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //Online stripe
 export const placeOrderOnline = async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
     const { items, address } = req.body.product;
 
     if (!address || !Array.isArray(items) || items.length === 0) {
